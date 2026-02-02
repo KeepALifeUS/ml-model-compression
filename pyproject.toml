@@ -3,16 +3,16 @@ requires = ["setuptools>=68.0", "wheel", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "ctb3-ml-model-compression"
+name = "ml-model-compression"
 version = "1.0.0"
 description = "Comprehensive ML Model Compression System for Crypto Trading Bot v5.0"
 readme = "README.md"
 license = {text = "MIT"}
 authors = [
-    {name = "CTB3 Development Team", email = "dev@ctb3.ai"}
+    {name = "Development Team", email = "dev@example.com"}
 ]
 maintainers = [
-    {name = "CTB3 AI Team", email = "ai@ctb3.ai"}
+    {name = "AI Team", email = "ai@example.com"}
 ]
 keywords = [
     "machine-learning",
@@ -110,23 +110,23 @@ visualization = [
     "torchinfo>=1.8.0"
 ]
 all = [
-    "ctb3-ml-model-compression[dev,tensorrt,openvino,edge,visualization]"
+    "ml-model-compression[dev,tensorrt,openvino,edge,visualization]"
 ]
 
 [project.urls]
-Homepage = "https://github.com/ctb3/crypto-trading-bot-v5"
-Repository = "https://github.com/ctb3/crypto-trading-bot-v5.git"
-Documentation = "https://ctb3.readthedocs.io/en/latest/packages/ml-model-compression/"
-"Bug Tracker" = "https://github.com/ctb3/crypto-trading-bot-v5/issues"
-Changelog = "https://github.com/ctb3/crypto-trading-bot-v5/blob/main/packages/ml-model-compression/CHANGELOG.md"
+Homepage = "https://github.com/KeepALifeUS"
+Repository = "https://github.com/KeepALifeUS"
+Documentation = "https://example.com"
+"Bug Tracker" = "https://github.com/KeepALifeUS"
+Changelog = "https://github.com/KeepALifeUS"
 
 [project.scripts]
-ctb3-compress = "src.cli:main"
-ctb3-quantize = "src.quantization.quantizer:cli_main"
-ctb3-prune = "src.pruning.structured_pruning:cli_main"
-ctb3-distill = "src.distillation.knowledge_distiller:cli_main"
-ctb3-deploy-edge = "src.deployment.edge_deployer:cli_main"
-ctb3-analyze-model = "src.utils.model_analyzer:cli_main"
+compress = "src.cli:main"
+quantize = "src.quantization.quantizer:cli_main"
+prune = "src.pruning.structured_pruning:cli_main"
+distill = "src.distillation.knowledge_distiller:cli_main"
+deploy-edge = "src.deployment.edge_deployer:cli_main"
+analyze-model = "src.utils.model_analyzer:cli_main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
@@ -274,8 +274,8 @@ per-file-ignores = [
 exclude_dirs = ["tests", "venv", ".venv"]
 skips = ["B101", "B601"]
 
-# CTB3 specific configuration
-[tool.ctb3]
+# Project specific configuration
+[tool.ml]
 domain = "ml-model-compression"
 category = "ai-ml"
 version = "5.0"
@@ -284,19 +284,19 @@ production_ready = true
 edge_deployment = true
 hft_optimized = true
 
-[tool.ctb3.compression]
+[tool.ml.compression]
 default_quantization = "int8"
 default_pruning = "structured"
 default_distillation = "response_based"
 target_compression_ratio = 0.7
 accuracy_threshold = 0.95
 
-[tool.ctb3.deployment]
+[tool.ml.deployment]
 target_devices = ["cpu", "cuda", "raspberry_pi", "jetson_nano", "intel_nuc"]
 export_formats = ["onnx", "torchscript", "tensorrt", "tflite"]
 optimization_level = "O2"
 
-[tool.ctb3.crypto_trading]
+[tool.ml.crypto_trading]
 hft_latency_target_ms = 0.1
 inference_batch_size = 1
 model_warmup_iterations = 100
