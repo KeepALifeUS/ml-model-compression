@@ -2,7 +2,7 @@
 Edge deployment модуль для развертывания сжатых ML-моделей 
 на устройствах с ограниченными ресурсами для crypto trading.
 
-Context7: Edge computing deployment patterns для real-time financial systems
+Edge computing deployment patterns для real-time financial systems
 """
 
 from typing import Dict, Any, Optional, List, Tuple, Union

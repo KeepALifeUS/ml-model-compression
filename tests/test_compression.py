@@ -3,7 +3,7 @@
 Включает unit tests, integration tests и end-to-end тестирование
 для всех компонентов системы сжатия моделей.
 
-Context7: Comprehensive testing patterns для production ML systems
+Comprehensive testing patterns для production ML systems
 """
 
 import pytest

@@ -2,7 +2,7 @@
 Производственный pipeline для сжатия ML-моделей в криптотрейдинге.
 Автоматизированный workflow с валидацией, rollback и deployment готовностью.
 
-Context7: Production ML pipeline patterns для continuous deployment
+Production ML pipeline patterns для continuous deployment
 """
 
 from typing import Dict, Any, Optional, List, Tuple, Union, Callable

@@ -2,7 +2,7 @@
 Модуль для evaluation метрик сжатия ML-моделей в криптотрейдинге.
 Комплексная оценка качества, производительности и deployment готовности.
 
-Context7: Comprehensive evaluation patterns для production ML systems
+Comprehensive evaluation patterns для production ML systems
 """
 
 from typing import Dict, Any, Optional, List, Tuple, Union, Callable

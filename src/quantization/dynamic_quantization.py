@@ -2,7 +2,7 @@
 Модуль динамической квантизации для криптотрейдинговых моделей.
 Оптимизирован для минимальной латентности в real-time inference.
 
-Context7: High-frequency trading optimization patterns
+High-frequency trading optimization patterns
 """
 
 from typing import Dict, Any, Optional, List, Union, Tuple

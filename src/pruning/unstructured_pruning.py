@@ -2,7 +2,7 @@
 Модуль неструктурированной pruning для криптотрейдинговых моделей.
 Удаляет отдельные веса с высокой гранулярностью для максимального сжатия.
 
-Context7: Fine-grained optimization patterns для edge deployment
+Fine-grained optimization patterns для edge deployment
 """
 
 from typing import Dict, Any, Optional, List, Tuple, Union, Callable

@@ -2,7 +2,7 @@
 Базовый модуль для квантизации моделей в Crypto Trading Bot.
 Поддерживает INT8, INT4 и смешанную точность для оптимизации развертывания.
 
-Context7: Edge computing deployment patterns для высокочастотной торговли
+Edge computing deployment patterns для высокочастотной торговли
 """
 
 from abc import ABC, abstractmethod
@@ -33,7 +33,7 @@ class PrecisionLevel(Enum):
     BF16 = "bf16"
 
 class BaseQuantizer(ABC):
-    """Базовый класс для всех квантизаторов с Context7 patterns"""
+    """Базовый класс для всех квантизаторов с enterprise patterns"""
     
     def __init__(self, 
                  precision: PrecisionLevel = PrecisionLevel.INT8,

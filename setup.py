@@ -109,7 +109,7 @@ setup(
     keywords=[
         "machine-learning", "model-compression", "quantization", "pruning",
         "knowledge-distillation", "crypto-trading", "edge-deployment", "pytorch",
-        "tensorflow", "high-frequency-trading", "hft", "context7", "enterprise"
+        "tensorflow", "high-frequency-trading", "hft", "ml-framework", "enterprise"
     ],
     zip_safe=False,
 )

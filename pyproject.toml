@@ -279,7 +279,7 @@ skips = ["B101", "B601"]
 domain = "ml-model-compression"
 category = "ai-ml"
 version = "5.0"
-context7_compliant = true
+
 production_ready = true
 edge_deployment = true
 hft_optimized = true

@@ -2,7 +2,7 @@
 Модуль структурированной pruning для криптотрейдинговых моделей.
 Удаляет целые каналы, фильтры и нейроны для hardware-friendly compression.
 
-Context7: Resource-constrained deployment patterns для edge computing
+Resource-constrained deployment patterns для edge computing
 """
 
 from typing import Dict, Any, Optional, List, Tuple, Union, Callable

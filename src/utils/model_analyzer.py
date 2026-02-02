@@ -2,7 +2,7 @@
 Модуль анализа ML-моделей для определения оптимальных стратегий сжатия.
 Автоматический выбор техник compression на основе архитектуры модели.
 
-Context7: Intelligent model analysis patterns для automated optimization
+Intelligent model analysis patterns для automated optimization
 """
 
 from typing import Dict, Any, Optional, List, Tuple, Union

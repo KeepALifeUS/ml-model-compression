@@ -2,7 +2,7 @@
 Базовый модуль Knowledge Distillation для криптотрейдинговых моделей.
 Обеспечивает transfer знаний от больших teacher моделей к компактным student моделям.
 
-Context7: Model efficiency patterns для production deployment
+Model efficiency patterns для production deployment
 """
 
 from typing import Dict, Any, Optional, List, Tuple, Union, Callable

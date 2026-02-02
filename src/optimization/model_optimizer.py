@@ -1,8 +1,8 @@
 """
 Универсальный оптимизатор моделей для криптотрейдинга с комбинированием
-техник сжатия и Context7 production optimization patterns.
+техник сжатия и  production optimization patterns.
 
-Context7: Holistic optimization patterns для production ML deployment
+Holistic optimization patterns для production ML deployment
 """
 
 from typing import Dict, Any, Optional, List, Tuple, Union, Callable

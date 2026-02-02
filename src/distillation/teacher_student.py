@@ -2,7 +2,7 @@
 Teacher-Student архитектура для криптотрейдинга с онлайн дистилляцией
 и ensemble методами для максимальной эффективности компрессии.
 
-Context7: Multi-model orchestration patterns для edge deployment
+Multi-model orchestration patterns для edge deployment
 """
 
 from typing import Dict, Any, Optional, List, Tuple, Union, Callable

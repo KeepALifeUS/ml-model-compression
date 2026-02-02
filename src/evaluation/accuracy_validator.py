@@ -2,7 +2,7 @@
 Модуль валидации точности сжатых ML-моделей для криптотрейдинга.
 Специализированные метрики и тесты для финансовых временных рядов.
 
-Context7: Domain-specific validation patterns для financial ML systems
+Domain-specific validation patterns для financial ML systems
 """
 
 from typing import Dict, Any, Optional, List, Tuple, Union, Callable
