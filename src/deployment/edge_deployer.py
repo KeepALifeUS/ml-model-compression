@@ -1,8 +1,8 @@
 """
-Edge deployment модуль для развертывания сжатых ML-моделей 
-на устройствах с ограниченными ресурсами для crypto trading.
+Edge deployment module for deployment compressed ML-models 
+on devices with limited resources for crypto trading.
 
-Edge computing deployment patterns для real-time financial systems
+Edge computing deployment patterns for real-time financial systems
 """
 
 from typing import Dict, Any, Optional, List, Tuple, Union
@@ -24,7 +24,7 @@ import shutil
 logger = logging.getLogger(__name__)
 
 class EdgePlatform(Enum):
-    """Поддерживаемые edge платформы"""
+    """Supported edge platforms"""
     RASPBERRY_PI = "raspberry_pi"
     JETSON_NANO = "jetson_nano"
     CORAL_DEV = "coral_dev"
@@ -33,7 +33,7 @@ class EdgePlatform(Enum):
     X86_EMBEDDED = "x86_embedded"
 
 class ModelFormat(Enum):
-    """Форматы моделей для deployment"""
+    """Formats models for deployment"""
     PYTORCH = "pytorch"
     TORCHSCRIPT = "torchscript"
     ONNX = "onnx"
@@ -42,15 +42,15 @@ class ModelFormat(Enum):
     TENSORRT = "tensorrt"
 
 class OptimizationLevel(Enum):
-    """Уровни оптимизации для edge deployment"""
-    MINIMAL = "minimal"      # Базовые оптимизации
-    STANDARD = "standard"    # Стандартные оптимизации
-    AGGRESSIVE = "aggressive"  # Агрессивные оптимизации
-    ULTRA = "ultra"         # Максимальные оптимизации
+    """Levels optimization for edge deployment"""
+    MINIMAL = "minimal"      # Base optimization
+    STANDARD = "standard"    # Standard optimization
+    AGGRESSIVE = "aggressive"  # Aggressive optimization
+    ULTRA = "ultra"         # Maximum optimization
 
 @dataclass
 class EdgeDeviceSpec:
-    """Спецификация edge устройства"""
+    """Specification edge devices"""
     platform: EdgePlatform
     cpu_cores: int
     ram_mb: int
@@ -62,7 +62,7 @@ class EdgeDeviceSpec:
     target_latency_ms: float = 100.0
     
     def to_dict(self) -> Dict[str, Any]:
-        """Конвертация в словарь"""
+        """Conversion in dictionary"""
         return {
             'platform': self.platform.value,
             'cpu_cores': self.cpu_cores,
@@ -77,7 +77,7 @@ class EdgeDeviceSpec:
 
 @dataclass
 class DeploymentResult:
-    """Результат edge deployment"""
+    """Result edge deployment"""
     success: bool
     deployed_model_path: str
     model_format: ModelFormat
@@ -86,20 +86,20 @@ class DeploymentResult:
     memory_usage_mb: float
     optimization_level: OptimizationLevel
     
-    # Performance метрики
+    # Performance metrics
     inference_time_ms: float
     throughput_samples_per_sec: float
     cpu_usage_percent: float
     memory_peak_mb: float
     
-    # Deployment информация
+    # Deployment information
     deployment_time_sec: float
     export_formats: List[str]
     compatibility_issues: List[str]
     recommendations: List[str]
     
     def to_dict(self) -> Dict[str, Any]:
-        """Конвертация в словарь"""
+        """Conversion in dictionary"""
         return {
             'success': self.success,
             'deployed_model_path': self.deployed_model_path,
@@ -120,19 +120,19 @@ class DeploymentResult:
 
 class EdgeDeployer:
     """
-    Система развертывания сжатых ML-моделей на edge устройствах
-    с оптимизацией для crypto trading в real-time
+    System deployment compressed ML-models on edge devices
+    with optimization for crypto trading in real-time
     """
     
     def __init__(self, workspace_dir: Union[str, Path]):
         """
         Args:
-            workspace_dir: Рабочая директория для deployment
+            workspace_dir: Working directory for deployment
         """
         self.workspace_dir = Path(workspace_dir)
         self.workspace_dir.mkdir(parents=True, exist_ok=True)
         
-        # Поддиректории
+        # Subdirectories
         (self.workspace_dir / "models").mkdir(exist_ok=True)
         (self.workspace_dir / "exports").mkdir(exist_ok=True)
         (self.workspace_dir / "benchmarks").mkdir(exist_ok=True)
@@ -140,10 +140,10 @@ class EdgeDeployer:
         
         self.logger = logging.getLogger(f"{__name__}.EdgeDeployer")
         
-        # Кэш для deployment результатов
+        # Cache for deployment results
         self.deployment_cache = {}
         
-        # Предопределенные конфигурации для популярных устройств
+        # Predefined configuration for popular devices
         self.device_presets = self._load_device_presets()
     
     def deploy_to_edge(self,
@@ -153,24 +153,24 @@ class EdgeDeployer:
                       target_format: Optional[ModelFormat] = None,
                       test_data: Optional[torch.utils.data.DataLoader] = None) -> DeploymentResult:
         """
-        Основной метод развертывания модели на edge устройство
+        Main method deployment model on edge device
         
         Args:
-            model: Модель для развертывания
-            device_spec: Спецификация целевого устройства
-            optimization_level: Уровень оптимизации
-            target_format: Целевой формат модели
-            test_data: Данные для бенчмарка
+            model: Model for deployment
+            device_spec: Specification target devices
+            optimization_level: Level optimization
+            target_format: Target format model
+            test_data: Data for benchmark
             
         Returns:
-            Результат развертывания
+            Result deployment
         """
         start_time = time.time()
         
-        self.logger.info(f"Начинаем edge deployment для {device_spec.platform.value}")
-        self.logger.info(f"Уровень оптимизации: {optimization_level.value}")
+        self.logger.info(f"Begin edge deployment for {device_spec.platform.value}")
+        self.logger.info(f"Level optimization: {optimization_level.value}")
         
-        # Проверка совместимости модели с устройством
+        # Validation compatibility model with device
         compatibility_check = self._check_device_compatibility(model, device_spec)
         
         if not compatibility_check['compatible']:
@@ -193,31 +193,31 @@ class EdgeDeployer:
             )
         
         try:
-            # 1. Выбор оптимального формата модели
+            # 1. Selection optimal format model
             if target_format is None:
                 target_format = self._select_optimal_format(device_spec)
             
-            # 2. Оптимизация модели для edge
+            # 2. Optimization model for edge
             optimized_model = self._optimize_model_for_edge(
                 model, device_spec, optimization_level
             )
             
-            # 3. Экспорт в целевой формат
+            # 3. Export in target format
             exported_model_path, export_info = self._export_model(
                 optimized_model, target_format, device_spec
             )
             
-            # 4. Оптимизация экспортированной модели
+            # 4. Optimization exported model
             final_model_path = self._post_export_optimization(
                 exported_model_path, target_format, device_spec
             )
             
-            # 5. Бенчмарк производительности
+            # 5. Benchmark performance
             performance_metrics = self._benchmark_deployed_model(
                 final_model_path, target_format, device_spec, test_data
             )
             
-            # 6. Генерация рекомендаций
+            # 6. Generation recommendations
             recommendations = self._generate_deployment_recommendations(
                 performance_metrics, device_spec, optimization_level
             )
@@ -242,16 +242,16 @@ class EdgeDeployer:
                 recommendations=recommendations
             )
             
-            # Сохраняем результат
+            # Save result
             self._save_deployment_result(result, device_spec)
             
-            self.logger.info(f"Edge deployment завершен успешно за {deployment_time:.2f}с")
-            self.logger.info(f"Модель развернута: {final_model_path}")
+            self.logger.info(f"Edge deployment completed successfully for {deployment_time:.2f}with")
+            self.logger.info(f"Model deployed: {final_model_path}")
             
             return result
             
         except Exception as e:
-            self.logger.error(f"Ошибка edge deployment: {e}")
+            self.logger.error(f"Error edge deployment: {e}")
             
             return DeploymentResult(
                 success=False,
@@ -268,44 +268,44 @@ class EdgeDeployer:
                 deployment_time_sec=time.time() - start_time,
                 export_formats=[],
                 compatibility_issues=[str(e)],
-                recommendations=["Проверьте совместимость модели и устройства"]
+                recommendations=["Check compatibility model and devices"]
             )
     
     def _check_device_compatibility(self, 
                                   model: nn.Module, 
                                   device_spec: EdgeDeviceSpec) -> Dict[str, Any]:
-        """Проверка совместимости модели с edge устройством"""
+        """Validation compatibility model with edge device"""
         
         issues = []
         recommendations = []
         
-        # Проверка размера модели
+        # Validation size model
         model_size_mb = self._calculate_model_size_mb(model)
         
         if model_size_mb > device_spec.max_model_size_mb:
-            issues.append(f"Модель слишком большая: {model_size_mb:.1f}MB > {device_spec.max_model_size_mb:.1f}MB")
-            recommendations.append("Примените более агрессивное сжатие")
+            issues.append(f"Model too large: {model_size_mb:.1f}MB > {device_spec.max_model_size_mb:.1f}MB")
+            recommendations.append("Apply more aggressive compression")
         
-        # Проверка памяти
-        estimated_memory_mb = model_size_mb * 3  # Примерная оценка с учетом activations
+        # Validation memory
+        estimated_memory_mb = model_size_mb * 3  # Approximate estimation with considering activations
         
-        if estimated_memory_mb > device_spec.ram_mb * 0.8:  # Оставляем 20% системе
-            issues.append(f"Недостаточно RAM: требуется ~{estimated_memory_mb:.1f}MB")
-            recommendations.append("Уменьшите размер модели или используйте memory mapping")
+        if estimated_memory_mb > device_spec.ram_mb * 0.8:  # Keep 20% system
+            issues.append(f"Insufficient RAM: is required ~{estimated_memory_mb:.1f}MB")
+            recommendations.append("Decrease size model or use memory mapping")
         
-        # Проверка поддерживаемых операций
+        # Validation supported operations
         unsupported_ops = self._check_unsupported_operations(model, device_spec)
         
         if unsupported_ops:
-            issues.append(f"Неподдерживаемые операции: {unsupported_ops}")
-            recommendations.append("Замените неподдерживаемые операции или используйте другой формат")
+            issues.append(f"Unsupported operations: {unsupported_ops}")
+            recommendations.append("Replace unsupported operations or use another format")
         
-        # Проверка квантизации
+        # Validation quantization
         if not device_spec.supports_quantization:
             has_quantized_ops = self._has_quantized_operations(model)
             if has_quantized_ops:
-                issues.append("Устройство не поддерживает квантизованные операции")
-                recommendations.append("Используйте float модель или другое устройство")
+                issues.append("Device not supports quantized operations")
+                recommendations.append("Use float model or other device")
         
         compatible = len(issues) == 0
         
@@ -318,9 +318,9 @@ class EdgeDeployer:
         }
     
     def _select_optimal_format(self, device_spec: EdgeDeviceSpec) -> ModelFormat:
-        """Выбор оптимального формата модели для устройства"""
+        """Selection optimal format model for devices"""
         
-        # Приоритеты форматов для различных платформ
+        # Priorities formats for various platforms
         format_priorities = {
             EdgePlatform.RASPBERRY_PI: [ModelFormat.ONNX, ModelFormat.TORCHSCRIPT, ModelFormat.PYTORCH],
             EdgePlatform.JETSON_NANO: [ModelFormat.TENSORRT, ModelFormat.ONNX, ModelFormat.TORCHSCRIPT],
@@ -335,45 +335,45 @@ class EdgeDeployer:
             [ModelFormat.ONNX, ModelFormat.TORCHSCRIPT]
         )
         
-        # Проверяем доступность первого предпочтительного формата
+        # Check availability first preferred format
         for format_option in preferred_formats:
             if self._is_format_available(format_option):
-                self.logger.info(f"Выбран формат {format_option.value} для {device_spec.platform.value}")
+                self.logger.info(f"Selected format {format_option.value} for {device_spec.platform.value}")
                 return format_option
         
-        # Fallback к PyTorch
+        # Fallback to PyTorch
         return ModelFormat.PYTORCH
     
     def _optimize_model_for_edge(self,
                                model: nn.Module,
                                device_spec: EdgeDeviceSpec,
                                optimization_level: OptimizationLevel) -> nn.Module:
-        """Оптимизация модели для edge устройства"""
+        """Optimization model for edge devices"""
         
         optimized_model = model
         
-        # Базовые оптимизации (всегда)
+        # Base optimization (always)
         optimized_model = self._apply_basic_optimizations(optimized_model)
         
         if optimization_level == OptimizationLevel.MINIMAL:
             return optimized_model
         
-        # Стандартные оптимизации
+        # Standard optimization
         if optimization_level in [OptimizationLevel.STANDARD, OptimizationLevel.AGGRESSIVE, OptimizationLevel.ULTRA]:
             optimized_model = self._apply_standard_optimizations(optimized_model, device_spec)
         
-        # Агрессивные оптимизации
+        # Aggressive optimization
         if optimization_level in [OptimizationLevel.AGGRESSIVE, OptimizationLevel.ULTRA]:
             optimized_model = self._apply_aggressive_optimizations(optimized_model, device_spec)
         
-        # Ультра оптимизации
+        # Ultra optimization
         if optimization_level == OptimizationLevel.ULTRA:
             optimized_model = self._apply_ultra_optimizations(optimized_model, device_spec)
         
         return optimized_model
     
     def _apply_basic_optimizations(self, model: nn.Module) -> nn.Module:
-        """Базовые оптимизации"""
+        """Base optimization"""
         
         # Ensure eval mode
         model.eval()
@@ -383,34 +383,34 @@ class EdgeDeployer:
             if not param.is_contiguous():
                 param.data = param.data.contiguous()
         
-        # Remove dropout layers (они не нужны в inference)
+        # Remove dropout layers (they not needed in inference)
         self._remove_dropout_layers(model)
         
         return model
     
     def _apply_standard_optimizations(self, model: nn.Module, device_spec: EdgeDeviceSpec) -> nn.Module:
-        """Стандартные оптимизации"""
+        """Standard optimization"""
         
-        # Operator fusion где возможно
+        # Operator fusion where possibly
         try:
             model = torch.jit.script(model)
             model = torch.jit.optimize_for_inference(model)
         except Exception as e:
-            self.logger.warning(f"JIT оптимизация не удалась: {e}")
+            self.logger.warning(f"JIT optimization not succeeded: {e}")
         
-        # Memory mapping для больших моделей на устройствах с ограниченной памятью
-        if device_spec.ram_mb < 2048:  # Менее 2GB RAM
+        # Memory mapping for large models on devices with limited memory
+        if device_spec.ram_mb < 2048:  # Less 2GB RAM
             model = self._enable_memory_mapping(model)
         
         return model
     
     def _apply_aggressive_optimizations(self, model: nn.Module, device_spec: EdgeDeviceSpec) -> nn.Module:
-        """Агрессивные оптимизации"""
+        """Aggressive optimization"""
         
-        # Graph-level оптимизации
+        # Graph-level optimization
         model = self._apply_graph_optimizations(model)
         
-        # Platform-specific оптимизации
+        # Platform-specific optimization
         if device_spec.platform == EdgePlatform.ARM_GENERIC or device_spec.platform == EdgePlatform.RASPBERRY_PI:
             model = self._apply_arm_optimizations(model)
         elif device_spec.has_gpu:
@@ -419,16 +419,16 @@ class EdgeDeployer:
         return model
     
     def _apply_ultra_optimizations(self, model: nn.Module, device_spec: EdgeDeviceSpec) -> nn.Module:
-        """Ультра оптимизации (могут снизить точность)"""
+        """Ultra optimization (can reduce accuracy)"""
         
         # Kernel fusion
         model = self._apply_kernel_fusion(model)
         
-        # Mixed precision если поддерживается
+        # Mixed precision if is supported
         if device_spec.has_gpu:
             model = self._apply_mixed_precision(model)
         
-        # Custom operators для специфических операций
+        # Custom operators for specific operations
         model = self._replace_with_custom_ops(model, device_spec)
         
         return model
@@ -437,7 +437,7 @@ class EdgeDeployer:
                      model: nn.Module,
                      target_format: ModelFormat,
                      device_spec: EdgeDeviceSpec) -> Tuple[Path, Dict[str, Any]]:
-        """Экспорт модели в целевой формат"""
+        """Export model in target format"""
         
         timestamp = int(time.time())
         base_name = f"edge_model_{device_spec.platform.value}_{timestamp}"
@@ -461,9 +461,9 @@ class EdgeDeployer:
         elif target_format == ModelFormat.TENSORRT:
             export_path = self._export_tensorrt(model, base_name, device_spec)
         else:
-            raise ValueError(f"Неподдерживаемый формат: {target_format}")
+            raise ValueError(f"Unsupported format: {target_format}")
         
-        # Вычисляем размер экспортированной модели
+        # Compute size exported model
         if export_path.exists():
             model_size_mb = export_path.stat().st_size / (1024 * 1024)
             export_info.update({
@@ -475,7 +475,7 @@ class EdgeDeployer:
         return export_path, export_info
     
     def _export_pytorch(self, model: nn.Module, base_name: str) -> Path:
-        """Экспорт в PyTorch формат"""
+        """Export in PyTorch format"""
         export_path = self.workspace_dir / "exports" / f"{base_name}.pt"
         
         torch.save({
@@ -486,23 +486,23 @@ class EdgeDeployer:
         return export_path
     
     def _export_torchscript(self, model: nn.Module, base_name: str) -> Path:
-        """Экспорт в TorchScript"""
+        """Export in TorchScript"""
         export_path = self.workspace_dir / "exports" / f"{base_name}_script.pt"
         
         try:
-            # Пробуем trace
+            # Try trace
             dummy_input = self._create_dummy_input(model)
             traced_model = torch.jit.trace(model, dummy_input)
             traced_model.save(str(export_path))
         except Exception:
-            # Fallback к script
+            # Fallback to script
             scripted_model = torch.jit.script(model)
             scripted_model.save(str(export_path))
         
         return export_path
     
     def _export_onnx(self, model: nn.Module, base_name: str, device_spec: EdgeDeviceSpec) -> Path:
-        """Экспорт в ONNX формат"""
+        """Export in ONNX format"""
         export_path = self.workspace_dir / "exports" / f"{base_name}.onnx"
         
         try:
@@ -510,9 +510,9 @@ class EdgeDeployer:
             
             dummy_input = self._create_dummy_input(model)
             
-            # Настройки экспорта для edge устройств
+            # Settings export for edge devices
             export_params = True
-            opset_version = 11  # Совместимость с большинством runtimes
+            opset_version = 11  # Compatibility with majority runtimes
             do_constant_folding = True
             
             torch.onnx.export(
@@ -531,50 +531,50 @@ class EdgeDeployer:
             )
             
         except ImportError:
-            raise ImportError("ONNX не установлен. pip install onnx")
+            raise ImportError("ONNX not installed. pip install onnx")
         
         return export_path
     
     def _export_tflite(self, model: nn.Module, base_name: str, device_spec: EdgeDeviceSpec) -> Path:
-        """Экспорт в TensorFlow Lite (через ONNX)"""
-        # Это упрощенная заглушка - в реальности нужен сложный pipeline
+        """Export in TensorFlow Lite (through ONNX)"""
+        # This simplified stub - in reality needed complex pipeline
         # ONNX -> TensorFlow -> TensorFlow Lite
         
         export_path = self.workspace_dir / "exports" / f"{base_name}.tflite"
         
-        # Создаем dummy файл для демонстрации
+        # Create dummy file for demonstration
         with open(export_path, 'wb') as f:
             f.write(b"TFLite model placeholder")
         
-        self.logger.info(f"TFLite экспорт (placeholder): {export_path}")
+        self.logger.info(f"TFLite export (placeholder): {export_path}")
         
         return export_path
     
     def _export_openvino(self, model: nn.Module, base_name: str, device_spec: EdgeDeviceSpec) -> Path:
-        """Экспорт в OpenVINO формат"""
+        """Export in OpenVINO format"""
         export_path = self.workspace_dir / "exports" / f"{base_name}_openvino.xml"
         
-        # Заглушка для OpenVINO экспорта
-        # В реальности: PyTorch -> ONNX -> OpenVINO Model Optimizer
+        # Stub for OpenVINO export
+        # IN reality: PyTorch -> ONNX -> OpenVINO Model Optimizer
         
         with open(export_path, 'w') as f:
             f.write('<?xml version="1.0"?>\n<net>OpenVINO model placeholder</net>')
         
-        self.logger.info(f"OpenVINO экспорт (placeholder): {export_path}")
+        self.logger.info(f"OpenVINO export (placeholder): {export_path}")
         
         return export_path
     
     def _export_tensorrt(self, model: nn.Module, base_name: str, device_spec: EdgeDeviceSpec) -> Path:
-        """Экспорт в TensorRT формат"""
+        """Export in TensorRT format"""
         export_path = self.workspace_dir / "exports" / f"{base_name}.trt"
         
-        # Заглушка для TensorRT экспорта
-        # В реальности: PyTorch -> ONNX -> TensorRT
+        # Stub for TensorRT export
+        # IN reality: PyTorch -> ONNX -> TensorRT
         
         with open(export_path, 'wb') as f:
             f.write(b"TensorRT engine placeholder")
         
-        self.logger.info(f"TensorRT экспорт (placeholder): {export_path}")
+        self.logger.info(f"TensorRT export (placeholder): {export_path}")
         
         return export_path
     
@@ -582,9 +582,9 @@ class EdgeDeployer:
                                 model_path: Path,
                                 model_format: ModelFormat,
                                 device_spec: EdgeDeviceSpec) -> Path:
-        """Пост-экспортная оптимизация модели"""
+        """Post-export optimization model"""
         
-        # Оптимизации зависят от формата
+        # Optimization depend from format
         if model_format == ModelFormat.ONNX:
             return self._optimize_onnx_model(model_path, device_spec)
         elif model_format == ModelFormat.OPENVINO:
@@ -592,50 +592,50 @@ class EdgeDeployer:
         elif model_format == ModelFormat.TENSORRT:
             return self._optimize_tensorrt_model(model_path, device_spec)
         else:
-            # Для остальных форматов возвращаем как есть
+            # For remaining formats return as exists
             return model_path
     
     def _optimize_onnx_model(self, model_path: Path, device_spec: EdgeDeviceSpec) -> Path:
-        """Оптимизация ONNX модели"""
+        """Optimization ONNX model"""
         
         try:
             import onnx
             from onnx import optimizer
             
-            # Загружаем модель
+            # Load model
             model = onnx.load(str(model_path))
             
-            # Применяем оптимизации
+            # Apply optimization
             optimizations = ['eliminate_deadend', 'eliminate_identity', 'eliminate_nop_transpose']
             
-            if device_spec.ram_mb < 1024:  # Для устройств с малой памятью
+            if device_spec.ram_mb < 1024:  # For devices with small memory
                 optimizations.extend(['fuse_consecutive_transposes', 'fuse_transpose_into_gemm'])
             
             optimized_model = optimizer.optimize(model, optimizations)
             
-            # Сохраняем оптимизированную модель
+            # Save optimized model
             optimized_path = model_path.with_name(f"optimized_{model_path.name}")
             onnx.save(optimized_model, str(optimized_path))
             
-            self.logger.info(f"ONNX модель оптимизирована: {optimized_path}")
+            self.logger.info(f"ONNX model optimized: {optimized_path}")
             
             return optimized_path
             
         except ImportError:
-            self.logger.warning("ONNX optimizer недоступен")
+            self.logger.warning("ONNX optimizer unavailable")
             return model_path
         except Exception as e:
-            self.logger.warning(f"ONNX оптимизация не удалась: {e}")
+            self.logger.warning(f"ONNX optimization not succeeded: {e}")
             return model_path
     
     def _optimize_openvino_model(self, model_path: Path, device_spec: EdgeDeviceSpec) -> Path:
-        """Оптимизация OpenVINO модели"""
-        # Заглушка для OpenVINO оптимизации
+        """Optimization OpenVINO model"""
+        # Stub for OpenVINO optimization
         return model_path
     
     def _optimize_tensorrt_model(self, model_path: Path, device_spec: EdgeDeviceSpec) -> Path:
-        """Оптимизация TensorRT модели"""
-        # Заглушка для TensorRT оптимизации
+        """Optimization TensorRT model"""
+        # Stub for TensorRT optimization
         return model_path
     
     def _benchmark_deployed_model(self,
@@ -643,7 +643,7 @@ class EdgeDeployer:
                                 model_format: ModelFormat,
                                 device_spec: EdgeDeviceSpec,
                                 test_data: Optional[torch.utils.data.DataLoader]) -> Dict[str, float]:
-        """Бенчмарк развернутой модели"""
+        """Benchmark deployed model"""
         
         metrics = {
             'avg_inference_time_ms': 0.0,
@@ -654,41 +654,41 @@ class EdgeDeployer:
         }
         
         try:
-            # Загружаем модель в зависимости от формата
+            # Load model in dependencies from format
             if model_format == ModelFormat.PYTORCH:
                 model = torch.load(model_path, map_location='cpu')['model']
             elif model_format == ModelFormat.TORCHSCRIPT:
                 model = torch.jit.load(str(model_path), map_location='cpu')
             elif model_format == ModelFormat.ONNX:
-                # Используем ONNX Runtime для бенчмарка
+                # Use ONNX Runtime for benchmark
                 return self._benchmark_onnx_model(model_path, device_spec, test_data)
             else:
-                # Для других форматов используем заглушку
+                # For other formats use stub
                 return self._estimate_performance_metrics(device_spec)
             
-            # PyTorch/TorchScript бенчмарк
+            # PyTorch/TorchScript benchmark
             model.eval()
             
-            # Создаем dummy данные если test_data не предоставлен
+            # Create dummy data if test_data not provided
             if test_data is None:
                 dummy_input = self._create_dummy_input(model)
                 test_inputs = [dummy_input for _ in range(100)]
             else:
                 test_inputs = []
                 for i, batch in enumerate(test_data):
-                    if i >= 100:  # Ограничиваем количество
+                    if i >= 100:  # Limit number
                         break
                     if isinstance(batch, (list, tuple)):
-                        test_inputs.append(batch[0][:1])  # Берем первый образец
+                        test_inputs.append(batch[0][:1])  # Take first sample
                     else:
                         test_inputs.append(batch[:1])
             
-            # Прогрев
+            # Warmup
             with torch.no_grad():
                 for i in range(min(10, len(test_inputs))):
                     _ = model(test_inputs[i])
             
-            # Бенчмарк
+            # Benchmark
             inference_times = []
             memory_usage = []
             
@@ -696,21 +696,21 @@ class EdgeDeployer:
             
             with torch.no_grad():
                 for test_input in test_inputs:
-                    # Измеряем память до inference
+                    # Measure memory until inference
                     mem_before = process.memory_info().rss / 1024 / 1024  # MB
                     
-                    # Измеряем время inference
+                    # Measure time inference
                     start_time = time.perf_counter()
                     _ = model(test_input)
                     end_time = time.perf_counter()
                     
-                    # Измеряем память после inference
+                    # Measure memory after inference
                     mem_after = process.memory_info().rss / 1024 / 1024  # MB
                     
                     inference_times.append((end_time - start_time) * 1000)  # ms
                     memory_usage.append(mem_after)
             
-            # Вычисляем метрики
+            # Compute metrics
             metrics['avg_inference_time_ms'] = float(np.mean(inference_times))
             metrics['throughput_samples_per_sec'] = 1000.0 / metrics['avg_inference_time_ms']
             metrics['avg_memory_usage_mb'] = float(np.mean(memory_usage))
@@ -718,7 +718,7 @@ class EdgeDeployer:
             metrics['avg_cpu_usage_percent'] = float(psutil.cpu_percent(interval=1))
             
         except Exception as e:
-            self.logger.warning(f"Ошибка бенчмарка: {e}")
+            self.logger.warning(f"Error benchmark: {e}")
             metrics = self._estimate_performance_metrics(device_spec)
         
         return metrics
@@ -727,22 +727,22 @@ class EdgeDeployer:
                             model_path: Path,
                             device_spec: EdgeDeviceSpec,
                             test_data: Optional[torch.utils.data.DataLoader]) -> Dict[str, float]:
-        """Бенчмарк ONNX модели"""
+        """Benchmark ONNX model"""
         
         try:
             import onnxruntime as ort
             
-            # Создаем inference session
+            # Create inference session
             session = ort.InferenceSession(str(model_path))
             
-            # Получаем информацию о входах
+            # Retrieve information about inputs
             input_info = session.get_inputs()[0]
             input_name = input_info.name
             input_shape = input_info.shape
             
-            # Создаем test данные
+            # Create test data
             if test_data is None:
-                # Используем случайные данные
+                # Use random data
                 test_inputs = [np.random.randn(1, *input_shape[1:]).astype(np.float32) for _ in range(100)]
             else:
                 test_inputs = []
@@ -754,11 +754,11 @@ class EdgeDeployer:
                     else:
                         test_inputs.append(batch[:1].numpy().astype(np.float32))
             
-            # Прогрев
+            # Warmup
             for i in range(min(10, len(test_inputs))):
                 _ = session.run(None, {input_name: test_inputs[i]})
             
-            # Бенчмарк
+            # Benchmark
             inference_times = []
             
             for test_input in test_inputs:
@@ -779,19 +779,19 @@ class EdgeDeployer:
             }
             
         except ImportError:
-            self.logger.warning("ONNX Runtime недоступен")
+            self.logger.warning("ONNX Runtime unavailable")
             return self._estimate_performance_metrics(device_spec)
         except Exception as e:
-            self.logger.warning(f"Ошибка ONNX бенчмарка: {e}")
+            self.logger.warning(f"Error ONNX benchmark: {e}")
             return self._estimate_performance_metrics(device_spec)
     
     def _estimate_performance_metrics(self, device_spec: EdgeDeviceSpec) -> Dict[str, float]:
-        """Оценка performance метрик на основе спецификации устройства"""
+        """Estimation performance metrics on basis specifications devices"""
         
-        # Простые эвристики для оценки производительности
+        # Simple heuristics for estimation performance
         base_latency = 50.0  # ms
         
-        # Корректировка на основе характеристик устройства
+        # Adjustment on basis characteristics devices
         cpu_factor = max(0.5, 4.0 / device_spec.cpu_cores)
         ram_factor = max(0.8, 2048 / device_spec.ram_mb)
         
@@ -809,74 +809,74 @@ class EdgeDeployer:
                                           performance_metrics: Dict[str, float],
                                           device_spec: EdgeDeviceSpec,
                                           optimization_level: OptimizationLevel) -> List[str]:
-        """Генерация рекомендаций по deployment"""
+        """Generation recommendations by deployment"""
         
         recommendations = []
         
-        # Анализ латентности
+        # Analysis latency
         inference_time = performance_metrics['avg_inference_time_ms']
         
         if inference_time > device_spec.target_latency_ms:
             recommendations.append(
-                f"Латентность {inference_time:.1f}ms превышает целевую {device_spec.target_latency_ms:.1f}ms. "
-                f"Рассмотрите более агрессивную оптимизацию."
+                f"Latency {inference_time:.1f}ms exceeds target {device_spec.target_latency_ms:.1f}ms. "
+                f"Consider more aggressive optimization."
             )
         elif inference_time < device_spec.target_latency_ms * 0.5:
-            recommendations.append("Отличная латентность! Модель хорошо оптимизирована для устройства.")
+            recommendations.append("Excellent latency! Model well optimized for devices.")
         
-        # Анализ использования памяти
+        # Analysis usage memory
         memory_usage = performance_metrics['avg_memory_usage_mb']
         memory_threshold = device_spec.ram_mb * 0.7
         
         if memory_usage > memory_threshold:
             recommendations.append(
-                f"Высокое использование памяти {memory_usage:.1f}MB. "
-                f"Рассмотрите дополнительное сжатие модели."
+                f"High usage memory {memory_usage:.1f}MB. "
+                f"Consider additional compression model."
             )
         
-        # Анализ CPU загрузки
+        # Analysis CPU loading
         cpu_usage = performance_metrics['avg_cpu_usage_percent']
         
         if cpu_usage > 80.0:
-            recommendations.append("Высокая загрузка CPU. Модель может быть слишком сложной для устройства.")
+            recommendations.append("High loading CPU. Model can be too complex for devices.")
         elif cpu_usage < 30.0:
-            recommendations.append("Низкая загрузка CPU. Есть резерв для более сложных моделей.")
+            recommendations.append("Low loading CPU. Exists reserve for more complex models.")
         
-        # Рекомендации по уровню оптимизации
+        # Recommendations by level optimization
         if optimization_level == OptimizationLevel.MINIMAL and inference_time > device_spec.target_latency_ms:
-            recommendations.append("Попробуйте более высокий уровень оптимизации.")
+            recommendations.append("Try more high level optimization.")
         
-        # Platform-specific рекомендации
+        # Platform-specific recommendations
         if device_spec.platform == EdgePlatform.RASPBERRY_PI:
-            recommendations.append("Для Raspberry Pi рекомендуется использовать ONNX Runtime с CPU provider.")
+            recommendations.append("For Raspberry Pi is recommended use ONNX Runtime with CPU provider.")
         
         if device_spec.has_gpu and cpu_usage > 60.0:
-            recommendations.append("Рассмотрите использование GPU для inference.")
+            recommendations.append("Consider usage GPU for inference.")
         
         if not recommendations:
-            recommendations.append("Deployment прошел успешно. Модель готова к использованию.")
+            recommendations.append("Deployment passed successfully. Model ready to usage.")
         
         return recommendations
     
-    # Helper методы
+    # Helper methods
     
     def _calculate_model_size_mb(self, model: nn.Module) -> float:
-        """Расчет размера модели в MB"""
+        """Calculation size model in MB"""
         param_size = sum(p.numel() * p.element_size() for p in model.parameters())
         buffer_size = sum(b.numel() * b.element_size() for b in model.buffers())
         
         return (param_size + buffer_size) / (1024 * 1024)
     
     def _check_unsupported_operations(self, model: nn.Module, device_spec: EdgeDeviceSpec) -> List[str]:
-        """Проверка неподдерживаемых операций"""
+        """Validation unsupported operations"""
         
         unsupported = []
         
-        # Общие неподдерживаемые операции для edge устройств
+        # General unsupported operations for edge devices
         unsupported_types = []
         
         if device_spec.platform in [EdgePlatform.RASPBERRY_PI, EdgePlatform.ARM_GENERIC]:
-            unsupported_types.extend([nn.MultiheadAttention])  # Пример
+            unsupported_types.extend([nn.MultiheadAttention])  # Example
         
         for name, module in model.named_modules():
             if any(isinstance(module, unsupported_type) for unsupported_type in unsupported_types):
@@ -885,17 +885,17 @@ class EdgeDeployer:
         return unsupported
     
     def _has_quantized_operations(self, model: nn.Module) -> bool:
-        """Проверка наличия квантизованных операций"""
+        """Validation presence quantized operations"""
         
         for module in model.modules():
-            # Проверяем на quantized модули PyTorch
-            if hasattr(module, 'qscheme'):  # Признак quantized модуля
+            # Check on quantized modules PyTorch
+            if hasattr(module, 'qscheme'):  # Feature quantized module
                 return True
         
         return False
     
     def _is_format_available(self, format_option: ModelFormat) -> bool:
-        """Проверка доступности формата экспорта"""
+        """Validation availability format export"""
         
         if format_option == ModelFormat.ONNX:
             try:
@@ -912,24 +912,24 @@ class EdgeDeployer:
                 return False
         
         elif format_option == ModelFormat.OPENVINO:
-            # Проверка наличия OpenVINO toolkit
+            # Validation presence OpenVINO toolkit
             return shutil.which('mo') is not None  # Model Optimizer
         
         elif format_option == ModelFormat.TENSORRT:
-            # Проверка наличия TensorRT
+            # Validation presence TensorRT
             try:
                 import tensorrt
                 return True
             except ImportError:
                 return False
         
-        # PyTorch и TorchScript всегда доступны
+        # PyTorch and TorchScript always available
         return True
     
     def _create_dummy_input(self, model: nn.Module) -> torch.Tensor:
-        """Создание dummy входа для модели"""
+        """Creation dummy input for model"""
         
-        # Простая эвристика для определения размера входа
+        # Simple heuristic for determination size input
         first_layer = next(iter(model.modules()))
         
         if isinstance(first_layer, nn.Linear):
@@ -939,11 +939,11 @@ class EdgeDeployer:
         elif isinstance(first_layer, nn.Conv2d):
             return torch.randn(1, first_layer.in_channels, 32, 32)
         else:
-            # Дефолтный размер для crypto trading (временные ряды)
+            # Default size for crypto trading (temporal series)
             return torch.randn(1, 100)
     
     def _remove_dropout_layers(self, model: nn.Module) -> None:
-        """Удаление dropout слоев (не нужны в inference)"""
+        """Removal dropout layers (not needed in inference)"""
         
         for name, module in list(model.named_children()):
             if isinstance(module, nn.Dropout):
@@ -952,42 +952,42 @@ class EdgeDeployer:
                 self._remove_dropout_layers(module)
     
     def _enable_memory_mapping(self, model: nn.Module) -> nn.Module:
-        """Включение memory mapping для моделей"""
-        # Заглушка для memory mapping
+        """Enabling memory mapping for models"""
+        # Stub for memory mapping
         return model
     
     def _apply_graph_optimizations(self, model: nn.Module) -> nn.Module:
-        """Применение graph-level оптимизаций"""
-        # Заглушка для graph оптимизаций
+        """Application graph-level optimizations"""
+        # Stub for graph optimizations
         return model
     
     def _apply_arm_optimizations(self, model: nn.Module) -> nn.Module:
-        """ARM-специфичные оптимизации"""
-        # Заглушка для ARM оптимизаций
+        """ARM-specific optimization"""
+        # Stub for ARM optimizations
         return model
     
     def _apply_gpu_optimizations(self, model: nn.Module, device_spec: EdgeDeviceSpec) -> nn.Module:
-        """GPU оптимизации для edge устройств"""
-        # Заглушка для GPU оптимизаций
+        """GPU optimization for edge devices"""
+        # Stub for GPU optimizations
         return model
     
     def _apply_kernel_fusion(self, model: nn.Module) -> nn.Module:
-        """Kernel fusion оптимизации"""
-        # Заглушка для kernel fusion
+        """Kernel fusion optimization"""
+        # Stub for kernel fusion
         return model
     
     def _apply_mixed_precision(self, model: nn.Module) -> nn.Module:
-        """Применение mixed precision"""
-        # Заглушка для mixed precision
+        """Application mixed precision"""
+        # Stub for mixed precision
         return model
     
     def _replace_with_custom_ops(self, model: nn.Module, device_spec: EdgeDeviceSpec) -> nn.Module:
-        """Замена операций на кастомные оптимизированные версии"""
-        # Заглушка для custom operators
+        """Replacement operations on custom optimized version"""
+        # Stub for custom operators
         return model
     
     def _save_deployment_result(self, result: DeploymentResult, device_spec: EdgeDeviceSpec) -> None:
-        """Сохранение результата deployment"""
+        """Saving result deployment"""
         
         result_file = self.workspace_dir / "configs" / f"deployment_{device_spec.platform.value}_{int(time.time())}.json"
         
@@ -997,10 +997,10 @@ class EdgeDeployer:
                 'deployment_result': result.to_dict()
             }, f, indent=2)
         
-        self.logger.info(f"Результат deployment сохранен: {result_file}")
+        self.logger.info(f"Result deployment saved: {result_file}")
     
     def _load_device_presets(self) -> Dict[EdgePlatform, EdgeDeviceSpec]:
-        """Загрузка предустановленных конфигураций устройств"""
+        """Loading preset configurations devices"""
         
         presets = {
             EdgePlatform.RASPBERRY_PI: EdgeDeviceSpec(
@@ -1038,11 +1038,11 @@ class EdgeDeployer:
         return presets
     
     def get_device_preset(self, platform: EdgePlatform) -> Optional[EdgeDeviceSpec]:
-        """Получение preset конфигурации устройства"""
+        """Retrieval preset configuration devices"""
         return self.device_presets.get(platform)
     
     def list_supported_formats(self, platform: EdgePlatform) -> List[ModelFormat]:
-        """Список поддерживаемых форматов для платформы"""
+        """List supported formats for platforms"""
         
         format_support = {
             EdgePlatform.RASPBERRY_PI: [ModelFormat.PYTORCH, ModelFormat.TORCHSCRIPT, ModelFormat.ONNX],

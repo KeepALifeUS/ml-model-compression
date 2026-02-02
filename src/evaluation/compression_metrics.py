@@ -1,8 +1,8 @@
 """
-Модуль для evaluation метрик сжатия ML-моделей в криптотрейдинге.
-Комплексная оценка качества, производительности и deployment готовности.
+Module for evaluation metrics compression ML-models in crypto trading.
+Comprehensive estimation quality, performance and deployment readiness.
 
-Comprehensive evaluation patterns для production ML systems
+Comprehensive evaluation patterns for production ML systems
 """
 
 from typing import Dict, Any, Optional, List, Tuple, Union, Callable
@@ -22,7 +22,7 @@ import json
 logger = logging.getLogger(__name__)
 
 class MetricCategory(Enum):
-    """Категории метрик для evaluation"""
+    """Categories metrics for evaluation"""
     COMPRESSION = "compression"
     PERFORMANCE = "performance"
     QUALITY = "quality"
@@ -30,7 +30,7 @@ class MetricCategory(Enum):
     CRYPTO_SPECIFIC = "crypto_specific"
 
 class CompressionTechnique(Enum):
-    """Техники сжатия для tracking"""
+    """Techniques compression for tracking"""
     QUANTIZATION = "quantization"
     STRUCTURED_PRUNING = "structured_pruning"
     UNSTRUCTURED_PRUNING = "unstructured_pruning"
@@ -39,7 +39,7 @@ class CompressionTechnique(Enum):
 
 @dataclass
 class CompressionMetrics:
-    """Базовые метрики сжатия"""
+    """Base metrics compression"""
     # Size metrics
     original_size_mb: float
     compressed_size_mb: float
@@ -64,12 +64,12 @@ class CompressionMetrics:
     memory_reduction_pct: float
     
     def to_dict(self) -> Dict[str, float]:
-        """Конвертация в словарь"""
+        """Conversion in dictionary"""
         return asdict(self)
 
 @dataclass
 class CryptoTradingMetrics:
-    """Специфические метрики для crypto trading"""
+    """Specific metrics for crypto trading"""
     # Trading performance
     directional_accuracy: float
     sharpe_ratio: float
@@ -87,12 +87,12 @@ class CryptoTradingMetrics:
     correlation_preservation: float
     
     def to_dict(self) -> Dict[str, float]:
-        """Конвертация в словарь"""
+        """Conversion in dictionary"""
         return asdict(self)
 
 @dataclass
 class DeploymentMetrics:
-    """Метрики готовности к deployment"""
+    """Metrics readiness to deployment"""
     # Hardware compatibility
     cpu_compatibility_score: float
     gpu_acceleration_support: float
@@ -109,13 +109,13 @@ class DeploymentMetrics:
     resource_efficiency_score: float
     
     def to_dict(self) -> Dict[str, Any]:
-        """Конвертация в словарь"""
+        """Conversion in dictionary"""
         return asdict(self)
 
 class CompressionEvaluator:
     """
-    Комплексный evaluator для оценки качества сжатия ML-моделей
-    с focus на crypto trading applications
+    Comprehensive evaluator for estimation quality compression ML-models
+    with focus on crypto trading applications
     """
     
     def __init__(self, 
@@ -123,8 +123,8 @@ class CompressionEvaluator:
                  cache_results: bool = True):
         """
         Args:
-            device: Устройство для вычислений
-            cache_results: Кэшировать результаты для повторного использования
+            device: Device for computations
+            cache_results: Cache results for repeated usage
         """
         self.device = device or torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.cache_results = cache_results
@@ -140,26 +140,26 @@ class CompressionEvaluator:
                                 compression_technique: CompressionTechnique = CompressionTechnique.COMBINED,
                                 crypto_specific_tests: bool = True) -> Dict[str, Any]:
         """
-        Комплексная оценка сжатой модели
+        Comprehensive estimation compressed model
         
         Args:
-            original_model: Исходная модель
-            compressed_model: Сжатая модель
-            test_data: Тестовые данные
-            compression_technique: Использованная техника сжатия
-            crypto_specific_tests: Включить crypto-specific тесты
+            original_model: Original model
+            compressed_model: Compressed model
+            test_data: Test data
+            compression_technique: Used technique compression
+            crypto_specific_tests: Enable crypto-specific tests
             
         Returns:
-            Полный отчет об evaluation
+            Full report about evaluation
         """
-        self.logger.info("Начинаем комплексную оценку сжатой модели")
+        self.logger.info("Begin comprehensive estimation compressed model")
         
         evaluation_id = f"eval_{int(time.time())}"
         
-        # Проверка кэша
+        # Validation cache
         cache_key = self._generate_cache_key(original_model, compressed_model)
         if self.cache_results and cache_key in self.evaluation_cache:
-            self.logger.info("Используем кэшированные результаты evaluation")
+            self.logger.info("Use cached results evaluation")
             return self.evaluation_cache[cache_key]
         
         results = {
@@ -170,63 +170,63 @@ class CompressionEvaluator:
         }
         
         try:
-            # 1. Базовые метрики сжатия
+            # 1. Base metrics compression
             compression_metrics = self._evaluate_compression_metrics(
                 original_model, compressed_model, test_data
             )
             results['compression_metrics'] = compression_metrics.to_dict()
             
-            # 2. Детальный анализ производительности
+            # 2. Detailed analysis performance
             performance_analysis = self._evaluate_performance_analysis(
                 original_model, compressed_model, test_data
             )
             results['performance_analysis'] = performance_analysis
             
-            # 3. Анализ качества предсказаний
+            # 3. Analysis quality predictions
             quality_analysis = self._evaluate_quality_analysis(
                 original_model, compressed_model, test_data
             )
             results['quality_analysis'] = quality_analysis
             
-            # 4. Crypto trading специфичные метрики
+            # 4. Crypto trading specific metrics
             if crypto_specific_tests:
                 crypto_metrics = self._evaluate_crypto_trading_metrics(
                     original_model, compressed_model, test_data
                 )
                 results['crypto_metrics'] = crypto_metrics.to_dict()
             
-            # 5. Deployment готовность
+            # 5. Deployment readiness
             deployment_metrics = self._evaluate_deployment_readiness(
                 compressed_model
             )
             results['deployment_metrics'] = deployment_metrics.to_dict()
             
-            # 6. Робастность и стабильность
+            # 6. Robustness and stability
             robustness_analysis = self._evaluate_robustness(
                 original_model, compressed_model, test_data
             )
             results['robustness_analysis'] = robustness_analysis
             
-            # 7. Сравнительный анализ
+            # 7. Comparative analysis
             comparative_analysis = self._comparative_analysis(results)
             results['comparative_analysis'] = comparative_analysis
             
-            # 8. Рекомендации
+            # 8. Recommendations
             recommendations = self._generate_recommendations(results)
             results['recommendations'] = recommendations
             
         except Exception as e:
-            self.logger.error(f"Ошибка в comprehensive evaluation: {e}")
+            self.logger.error(f"Error in comprehensive evaluation: {e}")
             results['error'] = str(e)
         
-        # Кэширование
+        # Caching
         if self.cache_results:
             self.evaluation_cache[cache_key] = results
         
-        # Сохранение в историю
+        # Saving in history
         self.evaluation_history.append(results)
         
-        self.logger.info(f"Комплексная оценка завершена (ID: {evaluation_id})")
+        self.logger.info(f"Comprehensive estimation completed (ID: {evaluation_id})")
         
         return results
     
@@ -234,7 +234,7 @@ class CompressionEvaluator:
                                     original_model: nn.Module,
                                     compressed_model: nn.Module,
                                     test_data: torch.utils.data.DataLoader) -> CompressionMetrics:
-        """Оценка базовых метрик сжатия"""
+        """Estimation base metrics compression"""
         
         # Size metrics
         original_size_mb = self._calculate_model_size(original_model)
@@ -288,7 +288,7 @@ class CompressionEvaluator:
                                      original_model: nn.Module,
                                      compressed_model: nn.Module,
                                      test_data: torch.utils.data.DataLoader) -> Dict[str, Any]:
-        """Детальный анализ производительности"""
+        """Detailed analysis performance"""
         
         analysis = {}
         
@@ -329,7 +329,7 @@ class CompressionEvaluator:
                                  original_model: nn.Module,
                                  compressed_model: nn.Module,
                                  test_data: torch.utils.data.DataLoader) -> Dict[str, Any]:
-        """Анализ качества предсказаний"""
+        """Analysis quality predictions"""
         
         analysis = {}
         
@@ -357,7 +357,7 @@ class CompressionEvaluator:
                                        original_model: nn.Module,
                                        compressed_model: nn.Module,
                                        test_data: torch.utils.data.DataLoader) -> CryptoTradingMetrics:
-        """Crypto trading специфичные метрики"""
+        """Crypto trading specific metrics"""
         
         # Directional accuracy
         directional_accuracy = self._calculate_directional_accuracy(
@@ -399,7 +399,7 @@ class CompressionEvaluator:
         )
     
     def _evaluate_deployment_readiness(self, model: nn.Module) -> DeploymentMetrics:
-        """Оценка готовности к deployment"""
+        """Estimation readiness to deployment"""
         
         # Hardware compatibility
         cpu_score = self._test_cpu_compatibility(model)
@@ -432,7 +432,7 @@ class CompressionEvaluator:
                            original_model: nn.Module,
                            compressed_model: nn.Module,
                            test_data: torch.utils.data.DataLoader) -> Dict[str, Any]:
-        """Оценка робастности модели"""
+        """Estimation robustness model"""
         
         robustness = {}
         
@@ -458,10 +458,10 @@ class CompressionEvaluator:
         
         return robustness
     
-    # Helper methods для различных измерений
+    # Helper methods for various measurements
     
     def _calculate_model_size(self, model: nn.Module) -> float:
-        """Расчет размера модели в MB"""
+        """Calculation size model in MB"""
         param_size = 0
         for param in model.parameters():
             param_size += param.nelement() * param.element_size()
@@ -471,7 +471,7 @@ class CompressionEvaluator:
                          model: nn.Module, 
                          test_data: torch.utils.data.DataLoader,
                          max_batches: int = 100) -> float:
-        """Измерение accuracy модели"""
+        """Measurement accuracy model"""
         model.eval()
         
         total_loss = 0.0
@@ -498,29 +498,29 @@ class CompressionEvaluator:
                 total_samples += inputs.size(0)
         
         avg_loss = total_loss / total_samples if total_samples > 0 else float('inf')
-        return max(0.0, 1.0 - avg_loss)  # Преобразуем в accuracy-like metric
+        return max(0.0, 1.0 - avg_loss)  # Convert in accuracy-like metric
     
     def _measure_latency(self,
                         model: nn.Module,
                         test_data: torch.utils.data.DataLoader,
                         num_iterations: int = 100) -> float:
-        """Измерение средней латентности"""
+        """Measurement average latency"""
         model.eval()
         model.to(self.device)
         
-        # Получаем пример входа
+        # Retrieve example input
         sample_batch = next(iter(test_data))
         if isinstance(sample_batch, (list, tuple)):
             sample_input = sample_batch[0][:1].to(self.device)
         else:
             sample_input = sample_batch[:1].to(self.device)
         
-        # Прогрев
+        # Warmup
         with torch.no_grad():
             for _ in range(10):
                 _ = model(sample_input)
         
-        # Измерение
+        # Measurement
         latencies = []
         with torch.no_grad():
             for _ in range(num_iterations):
@@ -539,7 +539,7 @@ class CompressionEvaluator:
                                     model: nn.Module,
                                     test_data: torch.utils.data.DataLoader,
                                     num_iterations: int = 200) -> List[float]:
-        """Измерение распределения латентности"""
+        """Measurement distribution latency"""
         model.eval()
         model.to(self.device)
         
@@ -549,7 +549,7 @@ class CompressionEvaluator:
         else:
             sample_input = sample_batch[:1].to(self.device)
         
-        # Прогрев
+        # Warmup
         with torch.no_grad():
             for _ in range(10):
                 _ = model(sample_input)
@@ -569,14 +569,14 @@ class CompressionEvaluator:
         return latencies
     
     def _estimate_memory_usage(self, model: nn.Module) -> float:
-        """Оценка использования памяти"""
-        # Простая оценка на основе параметров
+        """Estimation usage memory"""
+        # Simple estimation on basis parameters
         param_memory = sum(p.numel() * p.element_size() for p in model.parameters())
         buffer_memory = sum(b.numel() * b.element_size() for b in model.buffers())
         
-        # Приблизительная оценка activation memory (эвристика)
+        # Approximate estimation activation memory (heuristic)
         total_params = sum(p.numel() for p in model.parameters())
-        activation_memory_estimate = total_params * 4 * 2  # Примерное значение
+        activation_memory_estimate = total_params * 4 * 2  # Approximate value
         
         total_memory_bytes = param_memory + buffer_memory + activation_memory_estimate
         return total_memory_bytes / 1024 / 1024  # MB
@@ -585,7 +585,7 @@ class CompressionEvaluator:
                                       original_model: nn.Module,
                                       compressed_model: nn.Module,
                                       test_data: torch.utils.data.DataLoader) -> Dict[str, Any]:
-        """Анализ чувствительности к размеру batch"""
+        """Analysis sensitivity to size batch"""
         
         batch_sizes = [1, 4, 8, 16, 32]
         results = {'batch_sizes': batch_sizes, 'original_latencies': [], 'compressed_latencies': []}
@@ -597,16 +597,16 @@ class CompressionEvaluator:
             base_input = sample_batch[:1]
         
         for batch_size in batch_sizes:
-            # Создаем input нужного batch size
+            # Create input needed batch size
             batched_input = base_input.repeat(batch_size, *([1] * (len(base_input.shape) - 1)))
             batched_input = batched_input.to(self.device)
             
-            # Измеряем latency для оригинальной модели
+            # Measure latency for original model
             original_model.to(self.device).eval()
             original_latency = self._measure_single_inference_latency(original_model, batched_input)
             results['original_latencies'].append(original_latency)
             
-            # Измеряем latency для сжатой модели
+            # Measure latency for compressed model
             compressed_model.to(self.device).eval()
             compressed_latency = self._measure_single_inference_latency(compressed_model, batched_input)
             results['compressed_latencies'].append(compressed_latency)
@@ -614,15 +614,15 @@ class CompressionEvaluator:
         return results
     
     def _measure_single_inference_latency(self, model: nn.Module, input_tensor: torch.Tensor) -> float:
-        """Измерение latency одного inference"""
+        """Measurement latency one inference"""
         model.eval()
         
-        # Прогрев
+        # Warmup
         with torch.no_grad():
             for _ in range(5):
                 _ = model(input_tensor)
         
-        # Измерение
+        # Measurement
         times = []
         with torch.no_grad():
             for _ in range(10):
@@ -638,11 +638,11 @@ class CompressionEvaluator:
     def _analyze_resource_utilization(self,
                                     original_model: nn.Module,
                                     compressed_model: nn.Module) -> Dict[str, Any]:
-        """Анализ использования ресурсов"""
+        """Analysis usage resources"""
         
         analysis = {}
         
-        # FLOPs estimation (приблизительно)
+        # FLOPs estimation (approximately)
         original_flops = self._estimate_flops(original_model)
         compressed_flops = self._estimate_flops(compressed_model)
         
@@ -665,7 +665,7 @@ class CompressionEvaluator:
         return analysis
     
     def _estimate_flops(self, model: nn.Module) -> int:
-        """Приблизительная оценка FLOPs"""
+        """Approximate estimation FLOPs"""
         total_flops = 0
         
         for module in model.modules():
@@ -689,7 +689,7 @@ class CompressionEvaluator:
                                        original_model: nn.Module,
                                        compressed_model: nn.Module,
                                        test_data: torch.utils.data.DataLoader) -> Dict[str, float]:
-        """Анализ корреляции предсказаний"""
+        """Analysis correlation predictions"""
         
         original_model.eval()
         compressed_model.eval()
@@ -699,7 +699,7 @@ class CompressionEvaluator:
         
         with torch.no_grad():
             for i, batch in enumerate(test_data):
-                if i >= 50:  # Ограничиваем для скорости
+                if i >= 50:  # Limit for speed
                     break
                 
                 if isinstance(batch, (list, tuple)):
@@ -707,13 +707,13 @@ class CompressionEvaluator:
                 else:
                     inputs = batch.to(self.device)
                 
-                # Предсказания оригинальной модели
+                # Predictions original model
                 orig_out = original_model(inputs)
                 if isinstance(orig_out, dict):
                     orig_out = orig_out.get('trading_signal', orig_out)
                 original_predictions.append(orig_out.cpu().numpy())
                 
-                # Предсказания сжатой модели
+                # Predictions compressed model
                 comp_out = compressed_model(inputs)
                 if isinstance(comp_out, dict):
                     comp_out = comp_out.get('trading_signal', comp_out)
@@ -722,16 +722,16 @@ class CompressionEvaluator:
         if not original_predictions:
             return {'correlation': 0.0, 'mse': float('inf')}
         
-        # Объединяем предсказания
+        # Merge predictions
         orig_pred = np.concatenate(original_predictions, axis=0).flatten()
         comp_pred = np.concatenate(compressed_predictions, axis=0).flatten()
         
-        # Вычисляем корреляцию
+        # Compute correlation
         correlation = float(np.corrcoef(orig_pred, comp_pred)[0, 1])
         if np.isnan(correlation):
             correlation = 0.0
         
-        # MSE между предсказаниями
+        # MSE between predictions
         mse = float(np.mean((orig_pred - comp_pred) ** 2))
         
         return {
@@ -744,7 +744,7 @@ class CompressionEvaluator:
                                  original_model: nn.Module,
                                  compressed_model: nn.Module,
                                  test_data: torch.utils.data.DataLoader) -> Dict[str, Any]:
-        """Анализ ошибок предсказания"""
+        """Analysis errors predictions"""
         
         original_model.eval()
         compressed_model.eval()
@@ -764,14 +764,14 @@ class CompressionEvaluator:
                     inputs = batch.to(self.device)
                     targets = inputs  # Self-prediction task
                 
-                # Ошибки оригинальной модели
+                # Errors original model
                 orig_out = original_model(inputs)
                 if isinstance(orig_out, dict):
                     orig_out = orig_out.get('trading_signal', orig_out)
                 orig_error = nn.MSELoss(reduction='none')(orig_out, targets)
                 original_errors.append(orig_error.cpu().numpy())
                 
-                # Ошибки сжатой модели
+                # Errors compressed model
                 comp_out = compressed_model(inputs)
                 if isinstance(comp_out, dict):
                     comp_out = comp_out.get('trading_signal', comp_out)
@@ -796,9 +796,9 @@ class CompressionEvaluator:
                                        original_model: nn.Module,
                                        compressed_model: nn.Module,
                                        test_data: torch.utils.data.DataLoader) -> Dict[str, float]:
-        """Анализ сохранения confidence в предсказаниях"""
+        """Analysis saving confidence in predictions"""
         
-        # Упрощенный анализ на основе вариации выходов
+        # Simplified analysis on basis variations outputs
         original_variances = []
         compressed_variances = []
         
@@ -812,10 +812,10 @@ class CompressionEvaluator:
                 else:
                     inputs = batch.to(self.device)
                 
-                # Добавляем небольшой шум для оценки стабильности
+                # Add small noise for estimation stability
                 noise = torch.randn_like(inputs) * 0.01
                 
-                # Оригинальная модель
+                # Original model
                 orig_out1 = original_model(inputs)
                 orig_out2 = original_model(inputs + noise)
                 if isinstance(orig_out1, dict):
@@ -825,7 +825,7 @@ class CompressionEvaluator:
                 orig_var = torch.var(orig_out1 - orig_out2).item()
                 original_variances.append(orig_var)
                 
-                # Сжатая модель
+                # Compressed model
                 comp_out1 = compressed_model(inputs)
                 comp_out2 = compressed_model(inputs + noise)
                 if isinstance(comp_out1, dict):
@@ -841,7 +841,7 @@ class CompressionEvaluator:
         orig_mean_var = np.mean(original_variances)
         comp_mean_var = np.mean(compressed_variances)
         
-        # Confidence preservation score (обратно пропорционально изменению variance)
+        # Confidence preservation score (back proportionally change variance)
         if orig_mean_var > 0:
             confidence_preservation = min(1.0, orig_mean_var / max(comp_mean_var, 1e-8))
         else:
@@ -856,7 +856,7 @@ class CompressionEvaluator:
     def _calculate_directional_accuracy(self,
                                       model: nn.Module,
                                       test_data: torch.utils.data.DataLoader) -> float:
-        """Расчет directional accuracy для trading"""
+        """Calculation directional accuracy for trading"""
         
         model.eval()
         correct_directions = 0
@@ -881,7 +881,7 @@ class CompressionEvaluator:
                     predictions = predictions.get('trading_signal', predictions)
                 
                 if prev_prediction is not None:
-                    # Сравниваем направления изменения
+                    # Compare directions changes
                     pred_direction = torch.sign(predictions[0] - prev_prediction[-1])
                     actual_direction = torch.sign(targets[0] - prev_target[-1])
                     
@@ -898,9 +898,9 @@ class CompressionEvaluator:
                                     original_model: nn.Module,
                                     compressed_model: nn.Module,
                                     test_data: torch.utils.data.DataLoader) -> Dict[str, float]:
-        """Симуляция торговой производительности"""
+        """Simulation trading performance"""
         
-        # Упрощенная симуляция торговых метрик
+        # Simplified simulation trading metrics
         compressed_model.eval()
         
         returns = []
@@ -921,7 +921,7 @@ class CompressionEvaluator:
                 if isinstance(prediction, dict):
                     prediction = prediction.get('trading_signal', prediction)
                 
-                # Симулируем returns на основе предсказаний
+                # Simulate returns on basis predictions
                 simulated_return = prediction.cpu().numpy().flatten()
                 actual_return = targets.cpu().numpy().flatten()
                 
@@ -934,16 +934,16 @@ class CompressionEvaluator:
         returns = np.array(returns)
         predictions = np.array(predictions)
         
-        # Упрощенные торговые метрики
+        # Simplified trading metrics
         sharpe_ratio = np.mean(returns) / (np.std(returns) + 1e-8)
         
-        # Max drawdown (упрощенный)
+        # Max drawdown (simplified)
         cumulative_returns = np.cumsum(returns)
         running_max = np.maximum.accumulate(cumulative_returns)
         drawdowns = running_max - cumulative_returns
         max_drawdown = np.max(drawdowns) if len(drawdowns) > 0 else 0.0
         
-        # Profit factor (упрощенный)
+        # Profit factor (simplified)
         positive_returns = returns[returns > 0]
         negative_returns = returns[returns < 0]
         
@@ -959,17 +959,17 @@ class CompressionEvaluator:
     def _measure_p99_latency_microseconds(self,
                                         model: nn.Module,
                                         test_data: torch.utils.data.DataLoader) -> float:
-        """Измерение P99 латентности в микросекундах"""
+        """Measurement P99 latency in microseconds"""
         
         latencies_ms = self._measure_latency_distribution(model, test_data, num_iterations=1000)
-        latencies_us = [lat * 1000 for lat in latencies_ms]  # Конвертируем в микросекунды
+        latencies_us = [lat * 1000 for lat in latencies_ms]  # Convert in microseconds
         
         return float(np.percentile(latencies_us, 99))
     
     def _measure_prediction_stability(self,
                                     model: nn.Module,
                                     test_data: torch.utils.data.DataLoader) -> float:
-        """Измерение стабильности предсказаний"""
+        """Measurement stability predictions"""
         
         model.eval()
         stability_scores = []
@@ -984,7 +984,7 @@ class CompressionEvaluator:
                 else:
                     inputs = batch.to(self.device)
                 
-                # Несколько forward passes для оценки стабильности
+                # Several forward passes for estimation stability
                 outputs = []
                 for _ in range(5):
                     output = model(inputs)
@@ -992,7 +992,7 @@ class CompressionEvaluator:
                         output = output.get('trading_signal', output)
                     outputs.append(output.cpu().numpy())
                 
-                # Вычисляем стабильность как обратную величину variance
+                # Compute stability as inverse magnitude variance
                 outputs_array = np.array(outputs)
                 variance = np.var(outputs_array, axis=0).mean()
                 stability = 1.0 / (1.0 + variance)
@@ -1003,9 +1003,9 @@ class CompressionEvaluator:
     def _evaluate_market_regime_detection(self,
                                         model: nn.Module,
                                         test_data: torch.utils.data.DataLoader) -> float:
-        """Оценка точности определения рыночного режима"""
+        """Estimation accuracy determination market mode"""
         
-        # Упрощенная оценка - предполагаем что модель может выводить режим
+        # Simplified estimation - assume that model can output mode
         model.eval()
         
         correct_regime_predictions = 0
@@ -1023,11 +1023,11 @@ class CompressionEvaluator:
                 
                 output = model(inputs)
                 
-                # Если модель поддерживает market regime detection
+                # If model supports market regime detection
                 if isinstance(output, dict) and 'market_regime' in output:
                     regime_pred = output['market_regime']
-                    # Здесь была бы реальная логика оценки
-                    # Для примера используем заглушку
+                    # Here was would real logic estimation
+                    # For example use stub
                     correct_regime_predictions += 1
                     total_predictions += 1
         
@@ -1037,9 +1037,9 @@ class CompressionEvaluator:
                              original_model: nn.Module,
                              compressed_model: nn.Module,
                              test_data: torch.utils.data.DataLoader) -> Dict[str, float]:
-        """Оценка risk-related метрик"""
+        """Estimation risk-related metrics"""
         
-        # Упрощенная оценка risk метрик
+        # Simplified estimation risk metrics
         compressed_model.eval()
         
         predictions = []
@@ -1067,7 +1067,7 @@ class CompressionEvaluator:
         pred_array = np.concatenate(predictions, axis=0)
         target_array = np.concatenate(targets, axis=0)
         
-        # VaR accuracy (упрощенная оценка)
+        # VaR accuracy (simplified estimation)
         pred_var = np.percentile(pred_array, 5)  # 95% VaR
         actual_var = np.percentile(target_array, 5)
         var_accuracy = 1.0 - abs(pred_var - actual_var) / (abs(actual_var) + 1e-8)
@@ -1088,10 +1088,10 @@ class CompressionEvaluator:
             'correlation_preservation': float(abs(correlation))
         }
     
-    # Deployment readiness методы
+    # Deployment readiness methods
     
     def _test_cpu_compatibility(self, model: nn.Module) -> float:
-        """Тест совместимости с CPU"""
+        """Test compatibility with CPU"""
         try:
             model_cpu = model.cpu()
             dummy_input = torch.randn(1, 100)
@@ -1099,13 +1099,13 @@ class CompressionEvaluator:
             with torch.no_grad():
                 _ = model_cpu(dummy_input)
             
-            return 1.0  # Полная совместимость
+            return 1.0  # Full compatibility
             
         except Exception:
-            return 0.0  # Несовместимо
+            return 0.0  # Incompatible
     
     def _test_gpu_acceleration(self, model: nn.Module) -> float:
-        """Тест GPU ускорения"""
+        """Test GPU acceleration"""
         if not torch.cuda.is_available():
             return 0.0
         
@@ -1116,26 +1116,26 @@ class CompressionEvaluator:
             with torch.no_grad():
                 _ = model_gpu(dummy_input)
             
-            return 1.0  # Поддерживается
+            return 1.0  # Is supported
             
         except Exception:
-            return 0.0  # Не поддерживается
+            return 0.0  # Not is supported
     
     def _test_edge_device_suitability(self, model: nn.Module) -> float:
-        """Оценка пригодности для edge devices"""
+        """Estimation fitness for edge devices"""
         
-        # Факторы для edge device suitability
+        # Factors for edge device suitability
         model_size_mb = self._calculate_model_size(model)
         param_count = sum(p.numel() for p in model.parameters())
         
-        # Простая scoring функция
-        size_score = max(0.0, 1.0 - model_size_mb / 100.0)  # Штраф за размер > 100MB
-        param_score = max(0.0, 1.0 - param_count / 10_000_000)  # Штраф за > 10M параметров
+        # Simple scoring function
+        size_score = max(0.0, 1.0 - model_size_mb / 100.0)  # Penalty for size > 100MB
+        param_score = max(0.0, 1.0 - param_count / 10_000_000)  # Penalty for > 10M parameters
         
-        # Проверка на unsupported operations
+        # Validation on unsupported operations
         has_unsupported = False
         for module in model.modules():
-            if isinstance(module, (nn.MultiheadAttention,)):  # Пример unsupported ops
+            if isinstance(module, (nn.MultiheadAttention,)):  # Example unsupported ops
                 has_unsupported = True
                 break
         
@@ -1146,7 +1146,7 @@ class CompressionEvaluator:
         return max(0.0, min(1.0, edge_score))
     
     def _test_onnx_export(self, model: nn.Module) -> bool:
-        """Тест экспорта в ONNX"""
+        """Test export in ONNX"""
         try:
             import torch.onnx
             import tempfile
@@ -1172,20 +1172,20 @@ class CompressionEvaluator:
             return False
     
     def _test_torchscript_export(self, model: nn.Module) -> bool:
-        """Тест экспорта в TorchScript"""
+        """Test export in TorchScript"""
         try:
             model.eval()
             dummy_input = torch.randn(1, 100)
             
-            # Пытаемся trace
+            # Try trace
             try:
                 traced_model = torch.jit.trace(model, dummy_input)
-                # Тест traced модели
+                # Test traced model
                 with torch.no_grad():
                     _ = traced_model(dummy_input)
                 return True
             except:
-                # Пытаемся script
+                # Try script
                 scripted_model = torch.jit.script(model)
                 with torch.no_grad():
                     _ = scripted_model(dummy_input)
@@ -1196,23 +1196,23 @@ class CompressionEvaluator:
             return False
     
     def _test_tflite_conversion(self, model: nn.Module) -> bool:
-        """Тест конвертации в TensorFlow Lite"""
-        # Упрощенный тест - в реальности требуется ONNX -> TensorFlow -> TFLite pipeline
+        """Test conversion in TensorFlow Lite"""
+        # Simplified test - in reality is required ONNX -> TensorFlow -> TFLite pipeline
         try:
-            # Здесь была бы реальная логика конвертации
-            # Для примера возвращаем False (сложная конвертация)
+            # Here was would real logic conversion
+            # For example return False (complex conversion)
             return False
             
         except Exception:
             return False
     
     def _evaluate_model_stability(self, model: nn.Module) -> float:
-        """Оценка стабильности модели"""
+        """Estimation stability model"""
         try:
             model.eval()
             dummy_input = torch.randn(1, 100)
             
-            # Многократный inference для проверки стабильности
+            # Multiple inference for validation stability
             outputs = []
             with torch.no_grad():
                 for _ in range(10):
@@ -1221,7 +1221,7 @@ class CompressionEvaluator:
                         output = output.get('trading_signal', output)
                     outputs.append(output.numpy())
             
-            # Оценка стабильности через variance
+            # Estimation stability through variance
             outputs_array = np.array(outputs)
             variance = np.var(outputs_array)
             stability = 1.0 / (1.0 + variance)
@@ -1232,14 +1232,14 @@ class CompressionEvaluator:
             return 0.0
     
     def _evaluate_error_resilience(self, model: nn.Module) -> float:
-        """Оценка устойчивости к ошибкам"""
+        """Estimation stability to errors"""
         try:
             model.eval()
             
             error_tests = 0
             passed_tests = 0
             
-            # Тест 1: NaN inputs
+            # Test 1: NaN inputs
             try:
                 nan_input = torch.full((1, 100), float('nan'))
                 with torch.no_grad():
@@ -1250,7 +1250,7 @@ class CompressionEvaluator:
             except:
                 error_tests += 1
             
-            # Тест 2: Extreme values
+            # Test 2: Extreme values
             try:
                 extreme_input = torch.full((1, 100), 1e6)
                 with torch.no_grad():
@@ -1261,7 +1261,7 @@ class CompressionEvaluator:
             except:
                 error_tests += 1
             
-            # Тест 3: Zero input
+            # Test 3: Zero input
             try:
                 zero_input = torch.zeros(1, 100)
                 with torch.no_grad():
@@ -1278,17 +1278,17 @@ class CompressionEvaluator:
             return 0.0
     
     def _evaluate_resource_efficiency(self, model: nn.Module) -> float:
-        """Оценка эффективности использования ресурсов"""
+        """Estimation efficiency usage resources"""
         
-        # Факторы эффективности
+        # Factors efficiency
         model_size_mb = self._calculate_model_size(model)
         param_count = sum(p.numel() for p in model.parameters())
         
-        # Оценка эффективности
-        size_efficiency = max(0.0, 1.0 - model_size_mb / 200.0)  # Штраф за размер > 200MB
-        param_efficiency = max(0.0, 1.0 - param_count / 50_000_000)  # Штраф за > 50M параметров
+        # Estimation efficiency
+        size_efficiency = max(0.0, 1.0 - model_size_mb / 200.0)  # Penalty for size > 200MB
+        param_efficiency = max(0.0, 1.0 - param_count / 50_000_000)  # Penalty for > 50M parameters
         
-        # Простой latency test
+        # Simple latency test
         try:
             dummy_input = torch.randn(1, 100)
             model.eval()
@@ -1300,7 +1300,7 @@ class CompressionEvaluator:
             end_time = time.perf_counter()
             
             avg_latency_ms = ((end_time - start_time) / 10) * 1000
-            latency_efficiency = max(0.0, 1.0 - avg_latency_ms / 100.0)  # Штраф за > 100ms
+            latency_efficiency = max(0.0, 1.0 - avg_latency_ms / 100.0)  # Penalty for > 100ms
             
         except:
             latency_efficiency = 0.0
@@ -1309,13 +1309,13 @@ class CompressionEvaluator:
         
         return float(max(0.0, min(1.0, efficiency_score)))
     
-    # Robustness test методы
+    # Robustness test methods
     
     def _test_noise_sensitivity(self,
                               original_model: nn.Module,
                               compressed_model: nn.Module,
                               test_data: torch.utils.data.DataLoader) -> Dict[str, float]:
-        """Тест чувствительности к шуму"""
+        """Test sensitivity to noise"""
         
         noise_levels = [0.01, 0.05, 0.1, 0.2]
         results = {}
@@ -1334,11 +1334,11 @@ class CompressionEvaluator:
                     else:
                         clean_input = batch.to(self.device)
                     
-                    # Добавляем шум
+                    # Add noise
                     noise = torch.randn_like(clean_input) * noise_level
                     noisy_input = clean_input + noise
                     
-                    # Оригинальная модель
+                    # Original model
                     clean_out_orig = original_model(clean_input)
                     noisy_out_orig = original_model(noisy_input)
                     if isinstance(clean_out_orig, dict):
@@ -1348,7 +1348,7 @@ class CompressionEvaluator:
                     orig_error = torch.mean((clean_out_orig - noisy_out_orig) ** 2).item()
                     original_errors.append(orig_error)
                     
-                    # Сжатая модель
+                    # Compressed model
                     clean_out_comp = compressed_model(clean_input)
                     noisy_out_comp = compressed_model(noisy_input)
                     if isinstance(clean_out_comp, dict):
@@ -1370,7 +1370,7 @@ class CompressionEvaluator:
                                 original_model: nn.Module,
                                 compressed_model: nn.Module,
                                 test_data: torch.utils.data.DataLoader) -> Dict[str, float]:
-        """Тест устойчивости к возмущениям входа"""
+        """Test stability to perturbations input"""
         
         perturbation_tests = ['gaussian_noise', 'uniform_noise', 'dropout']
         results = {}
@@ -1389,7 +1389,7 @@ class CompressionEvaluator:
                     else:
                         clean_input = batch.to(self.device)
                     
-                    # Применяем возмущение
+                    # Apply perturbation
                     if test_type == 'gaussian_noise':
                         perturbation = torch.randn_like(clean_input) * 0.1
                         perturbed_input = clean_input + perturbation
@@ -1400,7 +1400,7 @@ class CompressionEvaluator:
                         mask = torch.rand_like(clean_input) > 0.1  # 10% dropout
                         perturbed_input = clean_input * mask.float()
                     
-                    # Тест оригинальной модели
+                    # Test original model
                     clean_out_orig = original_model(clean_input)
                     pert_out_orig = original_model(perturbed_input)
                     if isinstance(clean_out_orig, dict):
@@ -1410,7 +1410,7 @@ class CompressionEvaluator:
                     orig_diff = torch.mean((clean_out_orig - pert_out_orig) ** 2).item()
                     original_robustness.append(1.0 / (1.0 + orig_diff))
                     
-                    # Тест сжатой модели
+                    # Test compressed model
                     clean_out_comp = compressed_model(clean_input)
                     pert_out_comp = compressed_model(perturbed_input)
                     if isinstance(clean_out_comp, dict):
@@ -1431,7 +1431,7 @@ class CompressionEvaluator:
     def _test_numerical_stability(self,
                                 model: nn.Module,
                                 test_data: torch.utils.data.DataLoader) -> Dict[str, float]:
-        """Тест численной стабильности"""
+        """Test numerical stability"""
         
         model.eval()
         stability_tests = []
@@ -1446,7 +1446,7 @@ class CompressionEvaluator:
                 else:
                     inputs = batch.to(self.device)
                 
-                # Тест на очень малых значениях
+                # Test on very small values
                 small_input = inputs * 1e-6
                 try:
                     small_output = model(small_input)
@@ -1458,7 +1458,7 @@ class CompressionEvaluator:
                 except:
                     stability_tests.append(False)
                 
-                # Тест на больших значениях
+                # Test on large values
                 large_input = inputs * 1e3
                 try:
                     large_output = model(large_input)
@@ -1481,12 +1481,12 @@ class CompressionEvaluator:
     def _test_edge_cases(self,
                         model: nn.Module,
                         test_data: torch.utils.data.DataLoader) -> Dict[str, bool]:
-        """Тест обработки edge cases"""
+        """Test processing edge cases"""
         
         model.eval()
         edge_case_results = {}
         
-        # Получаем пример входа
+        # Retrieve example input
         sample_batch = next(iter(test_data))
         if isinstance(sample_batch, (list, tuple)):
             sample_input = sample_batch[0][:1].to(self.device)
@@ -1509,7 +1509,7 @@ class CompressionEvaluator:
                     if isinstance(output, dict):
                         output = output.get('trading_signal', output)
                     
-                    # Проверяем что output конечный и разумный
+                    # Check that output finite and reasonable
                     is_finite = torch.isfinite(output).all().item()
                     is_reasonable = (torch.abs(output) < 1e6).all().item()
                     
@@ -1522,11 +1522,11 @@ class CompressionEvaluator:
         return edge_case_results
     
     def _comparative_analysis(self, results: Dict[str, Any]) -> Dict[str, Any]:
-        """Сравнительный анализ результатов"""
+        """Comparative analysis results"""
         
         analysis = {}
         
-        # Извлекаем ключевые метрики
+        # Extract key metrics
         compression_metrics = results.get('compression_metrics', {})
         crypto_metrics = results.get('crypto_metrics', {})
         deployment_metrics = results.get('deployment_metrics', {})
@@ -1567,7 +1567,7 @@ class CompressionEvaluator:
         return analysis
     
     def _generate_recommendations(self, results: Dict[str, Any]) -> List[str]:
-        """Генерация рекомендаций на основе результатов"""
+        """Generation recommendations on basis results"""
         
         recommendations = []
         
@@ -1580,47 +1580,47 @@ class CompressionEvaluator:
         accuracy_retention = compression_metrics.get('accuracy_retention', 1.0)
         
         if compression_ratio < 2.0:
-            recommendations.append("Рассмотрите более агрессивные техники сжатия для увеличения compression ratio")
+            recommendations.append("Consider more aggressive techniques compression for increase compression ratio")
         
         if accuracy_retention < 0.95:
-            recommendations.append("Точность значительно снизилась. Рассмотрите fine-tuning или менее агрессивное сжатие")
+            recommendations.append("Accuracy significantly decreased. Consider fine-tuning or less aggressive compression")
         
         if compression_ratio > 5.0 and accuracy_retention > 0.98:
-            recommendations.append("Отличный результат сжатия! Модель готова для production deployment")
+            recommendations.append("Excellent result compression! Model ready for production deployment")
         
         # Performance recommendations
         latency_improvement = compression_metrics.get('latency_improvement_pct', 0.0)
         if latency_improvement < 10:
-            recommendations.append("Латентность улучшилась незначительно. Попробуйте quantization или другие техники")
+            recommendations.append("Latency improved insignificantly. Try quantization or other techniques")
         
         # Deployment recommendations
         if not deployment.get('onnx_export_success', True):
-            recommendations.append("ONNX экспорт не удался. Проверьте совместимость операций модели")
+            recommendations.append("ONNX export not succeeded. Check compatibility operations model")
         
         if deployment.get('edge_device_suitability', 0.0) < 0.5:
-            recommendations.append("Модель не подходит для edge devices. Необходимо дополнительное сжатие")
+            recommendations.append("Model not suitable for edge devices. Necessary additional compression")
         
         # Trading-specific recommendations
         crypto_metrics = results.get('crypto_metrics', {})
         if crypto_metrics:
             directional_accuracy = crypto_metrics.get('directional_accuracy', 0.0)
             if directional_accuracy < 0.55:
-                recommendations.append("Низкая directional accuracy. Рассмотрите domain-specific fine-tuning")
+                recommendations.append("Low directional accuracy. Consider domain-specific fine-tuning")
         
         # Overall recommendations
         efficiency_score = comparative.get('efficiency_score', 0.0)
         if efficiency_score > 0.8:
-            recommendations.append("Высокий efficiency score! Модель хорошо оптимизирована")
+            recommendations.append("High efficiency score! Model well optimized")
         elif efficiency_score < 0.5:
-            recommendations.append("Низкий efficiency score. Необходимо пересмотреть стратегию сжатия")
+            recommendations.append("Low efficiency score. Necessary reconsider strategy compression")
         
         if not recommendations:
-            recommendations.append("Результаты сжатия в пределах нормы. Модель готова к использованию")
+            recommendations.append("Results compression in within norms. Model ready to usage")
         
         return recommendations
     
     def _generate_cache_key(self, original_model: nn.Module, compressed_model: nn.Module) -> str:
-        """Генерация ключа для кэширования"""
+        """Generation key for caching"""
         orig_params = sum(p.numel() for p in original_model.parameters())
         comp_params = sum(p.numel() for p in compressed_model.parameters())
         

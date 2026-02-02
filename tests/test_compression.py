@@ -1,9 +1,9 @@
 """
-Комплексные тесты для ML Model Compression System.
-Включает unit tests, integration tests и end-to-end тестирование
-для всех компонентов системы сжатия моделей.
+Comprehensive tests for ML Model Compression System.
+Includes unit tests, integration tests and end-to-end testing
+for all components system compression models.
 
-Comprehensive testing patterns для production ML systems
+Comprehensive testing patterns for production ML systems
 """
 
 import pytest
@@ -16,7 +16,7 @@ from typing import Dict, Any, List
 import logging
 from unittest.mock import Mock, patch, MagicMock
 
-# Импорты модулей системы
+# Imports modules system
 from src.quantization.quantizer import CryptoModelQuantizer, PrecisionLevel
 from src.quantization.dynamic_quantization import DynamicQuantizer, DynamicQuantizationMode
 from src.pruning.structured_pruning import CryptoTradingStructuredPruner, StructuredPruningStrategy
@@ -30,11 +30,11 @@ from src.evaluation.accuracy_validator import AccuracyValidator, ValidationLevel
 from src.deployment.edge_deployer import EdgeDeployer, EdgeDeviceSpec, EdgePlatform
 from src.utils.model_analyzer import ModelAnalyzer, AnalysisLevel
 
-# Настройка логирования для тестов
+# Configuration logging for tests
 logging.basicConfig(level=logging.INFO)
 
 class TestModel(nn.Module):
-    """Простая тестовая модель для unit tests"""
+    """Simple test model for unit tests"""
     
     def __init__(self, input_size=100, hidden_size=64, output_size=1):
         super().__init__()
@@ -50,7 +50,7 @@ class TestModel(nn.Module):
         return self.layers(x)
 
 class CryptoTradingModel(nn.Module):
-    """Модель для crypto trading тестов"""
+    """Model for crypto trading tests"""
     
     def __init__(self, sequence_length=100, feature_dim=10, hidden_size=64):
         super().__init__()
@@ -72,7 +72,7 @@ class CryptoTradingModel(nn.Module):
             nn.Linear(32, 1)
         )
         
-        # Дополнительный выход для market regime
+        # Additional output for market regime
         self.regime_head = nn.Linear(hidden_size, 3)
     
     def forward(self, x):
@@ -93,18 +93,18 @@ class CryptoTradingModel(nn.Module):
 
 @pytest.fixture
 def simple_model():
-    """Фикстура простой модели"""
+    """Fixture simple model"""
     return TestModel()
 
 @pytest.fixture
 def crypto_model():
-    """Фикстура crypto trading модели"""
+    """Fixture crypto trading model"""
     return CryptoTradingModel()
 
 @pytest.fixture
 def sample_data():
-    """Фикстура тестовых данных"""
-    X = torch.randn(100, 100)  # 100 образцов, 100 features
+    """Fixture test data"""
+    X = torch.randn(100, 100)  # 100 samples, 100 features
     y = torch.randn(100, 1)    # 100 targets
     
     dataset = torch.utils.data.TensorDataset(X, y)
@@ -114,9 +114,9 @@ def sample_data():
 
 @pytest.fixture
 def crypto_data():
-    """Фикстура crypto данных"""
-    # Временные ряды: (batch, features, sequence)
-    X = torch.randn(200, 10, 100)  # 200 образцов, 10 features, 100 временных шагов
+    """Fixture crypto data"""
+    # Temporal series: (batch, features, sequence)
+    X = torch.randn(200, 10, 100)  # 200 samples, 10 features, 100 temporal steps
     y = torch.randn(200, 1)        # 200 targets
     
     dataset = torch.utils.data.TensorDataset(X, y)
@@ -126,15 +126,15 @@ def crypto_data():
 
 @pytest.fixture
 def temp_workspace():
-    """Временная рабочая директория"""
+    """Temporal working directory"""
     with tempfile.TemporaryDirectory() as temp_dir:
         yield Path(temp_dir)
 
 class TestQuantization:
-    """Тесты модуля квантизации"""
+    """Tests module quantization"""
     
     def test_crypto_model_quantizer_creation(self):
-        """Тест создания CryptoModelQuantizer"""
+        """Test creation CryptoModelQuantizer"""
         quantizer = CryptoModelQuantizer(
             precision=PrecisionLevel.INT8,
             latency_target=1.0,
@@ -146,45 +146,45 @@ class TestQuantization:
         assert quantizer.accuracy_threshold == 0.95
     
     def test_quantization_validation(self, simple_model):
-        """Тест валидации модели перед квантизацией"""
+        """Test validation model before quantization"""
         quantizer = CryptoModelQuantizer()
         
-        # Валидная модель должна пройти проверку
+        # Valid model must pass check
         assert quantizer.validate_model(simple_model) == True
         
-        # Пустая модель не должна пройти
+        # Empty model not must pass
         empty_model = nn.Module()
-        assert quantizer.validate_model(empty_model) == True  # Базовая проверка не блокирует пустые
+        assert quantizer.validate_model(empty_model) == True  # Base validation not blocks empty
     
     def test_dynamic_quantization(self, simple_model, sample_data):
-        """Тест динамической квантизации"""
+        """Test dynamic quantization"""
         quantizer = DynamicQuantizer(
             precision=PrecisionLevel.INT8,
             mode=DynamicQuantizationMode.BALANCED
         )
         
-        # Получаем первый batch для калибровки
+        # Retrieve first batch for calibration
         sample_batch = next(iter(sample_data))
         calibration_data = sample_batch[0]
         
-        # Применяем квантизацию
+        # Apply quantization
         quantized_model = quantizer.quantize_model(
             simple_model,
             calibration_data=calibration_data
         )
         
-        # Проверяем что модель квантизована
+        # Check that model quantized
         assert quantized_model is not None
         assert quantizer.compression_stats['compression_ratio'] > 1.0
     
     def test_quantization_export(self, simple_model, temp_workspace):
-        """Тест экспорта квантизованной модели"""
+        """Test export quantized model"""
         quantizer = CryptoModelQuantizer()
         
-        # Применяем простую квантизацию
+        # Apply simple quantization
         quantized_model = quantizer._dynamic_quantization(simple_model)
         
-        # Экспорт в TorchScript
+        # Export in TorchScript
         export_path = temp_workspace / "quantized_model.pt"
         success = quantizer.export_model(quantized_model, str(export_path), format="torchscript")
         
@@ -192,10 +192,10 @@ class TestQuantization:
         assert export_path.exists()
 
 class TestPruning:
-    """Тесты модуля pruning"""
+    """Tests module pruning"""
     
     def test_structured_pruning_creation(self):
-        """Тест создания structured pruner"""
+        """Test creation structured pruner"""
         pruner = CryptoTradingStructuredPruner(
             target_compression_ratio=4.0,
             accuracy_threshold=0.95
@@ -205,23 +205,23 @@ class TestPruning:
         assert pruner.accuracy_threshold == 0.95
     
     def test_unstructured_pruning_creation(self):
-        """Тест создания unstructured pruner"""
+        """Test creation unstructured pruner"""
         pruner = CryptoTradingUnstructuredPruner(
             target_compression_ratio=5.0
         )
         
         assert pruner.target_compression_ratio == 5.0
-        assert pruner.target_sparsity > 0.5  # Должно быть вычислено автоматически
+        assert pruner.target_sparsity > 0.5  # Must be computed automatically
     
     @pytest.mark.slow
     def test_structured_pruning_execution(self, simple_model, sample_data):
-        """Тест выполнения structured pruning"""
+        """Test execution structured pruning"""
         pruner = CryptoTradingStructuredPruner(target_compression_ratio=2.0)
         
-        # Создаем простые train/val данные
+        # Create simple train/val data
         train_data = val_data = sample_data
         
-        # Применяем pruning (с mock валидацией для скорости)
+        # Apply pruning (with mock validation for speed)
         with patch.object(pruner, '_validate_crypto_model', return_value=0.9):
             pruned_model = pruner.prune_for_crypto_trading(
                 simple_model,
@@ -230,22 +230,22 @@ class TestPruning:
                 strategy=StructuredPruningStrategy.MAGNITUDE
             )
         
-        # Проверяем что модель изменена
+        # Check that model changed
         assert pruned_model is not None
         assert hasattr(pruner, 'pruning_results')
     
     @pytest.mark.slow
     def test_unstructured_pruning_execution(self, simple_model, sample_data):
-        """Тест выполнения unstructured pruning"""
+        """Test execution unstructured pruning"""
         pruner = CryptoTradingUnstructuredPruner(target_compression_ratio=3.0)
         
         train_data = val_data = sample_data
         
-        # Mock функция fine-tuning
+        # Mock function fine-tuning
         def mock_fine_tune(model):
             return model
         
-        # Применяем adaptive pruning
+        # Apply adaptive pruning
         with patch.object(pruner, '_evaluate_crypto_model', return_value=0.85):
             pruned_model = pruner.adaptive_pruning(
                 simple_model,
@@ -257,12 +257,12 @@ class TestPruning:
         assert pruned_model is not None
 
 class TestKnowledgeDistillation:
-    """Тесты knowledge distillation"""
+    """Tests knowledge distillation"""
     
     def test_response_distiller_creation(self, simple_model):
-        """Тест создания response distiller"""
-        teacher_model = TestModel(hidden_size=128)  # Большая teacher модель
-        student_model = TestModel(hidden_size=32)   # Маленькая student модель
+        """Test creation response distiller"""
+        teacher_model = TestModel(hidden_size=128)  # Large teacher model
+        student_model = TestModel(hidden_size=32)   # Small student model
         
         distiller = ResponseDistiller(
             teacher_model=teacher_model,
@@ -275,7 +275,7 @@ class TestKnowledgeDistillation:
         assert distiller.temperature == 4.0
     
     def test_feature_distiller_creation(self, simple_model):
-        """Тест создания feature distiller"""
+        """Test creation feature distiller"""
         teacher_model = TestModel(hidden_size=128)
         student_model = TestModel(hidden_size=64)
         
@@ -283,15 +283,15 @@ class TestKnowledgeDistillation:
             teacher_model=teacher_model,
             student_model=student_model,
             feature_weight=0.1,
-            feature_layers=['layers.2']  # Конкретный слой для feature extraction
+            feature_layers=['layers.2']  # Specific layer for feature extraction
         )
         
         assert distiller.feature_weight == 0.1
         assert 'layers.2' in distiller.feature_layers
     
     def test_teacher_student_architecture(self, crypto_model):
-        """Тест teacher-student архитектуры"""
-        teacher_models = [crypto_model]  # Используем как teacher
+        """Test teacher-student architectures"""
+        teacher_models = [crypto_model]  # Use as teacher
         
         student_config = {
             'type': 'sequential',
@@ -308,36 +308,36 @@ class TestKnowledgeDistillation:
         assert len(architecture.teacher_models) == 1
         assert architecture.student_model is not None
         
-        # Тест создания ensemble distiller
+        # Test creation ensemble distiller
         ensemble_distiller = architecture.create_ensemble_distiller()
         assert ensemble_distiller is not None
     
     @pytest.mark.slow
     def test_distillation_training(self, simple_model, sample_data):
-        """Тест обучения через distillation"""
+        """Test training through distillation"""
         teacher_model = TestModel(hidden_size=128)
         student_model = TestModel(hidden_size=32)
         
         distiller = ResponseDistiller(teacher_model, student_model)
         
-        # Mock training для ускорения теста
+        # Mock training for acceleration test
         with patch.object(distiller, '_train_epoch', return_value={'total_loss': 0.5}), \
              patch.object(distiller, '_validate_epoch', return_value={'total_loss': 0.6}):
             
             trained_model = distiller.distill(
                 train_loader=sample_data,
                 val_loader=sample_data,
-                num_epochs=2  # Минимальное количество для теста
+                num_epochs=2  # Minimum number for test
             )
         
         assert trained_model is not None
         assert hasattr(distiller, 'training_stats')
 
 class TestOptimization:
-    """Тесты модуля оптимизации"""
+    """Tests module optimization"""
     
     def test_model_optimizer_creation(self):
-        """Тест создания model optimizer"""
+        """Test creation model optimizer"""
         config = OptimizationConfig(
             objective=OptimizationObjective.BALANCED,
             target_compression_ratio=3.0,
@@ -352,7 +352,7 @@ class TestOptimization:
         assert optimizer.config.enable_quantization == True
     
     def test_optimization_config_serialization(self):
-        """Тест сериализации конфигурации"""
+        """Test serialization configuration"""
         config = OptimizationConfig()
         config_dict = config.to_dict()
         
@@ -362,17 +362,17 @@ class TestOptimization:
     
     @pytest.mark.slow
     def test_model_optimization_execution(self, simple_model, sample_data, temp_workspace):
-        """Тест выполнения оптимизации модели"""
+        """Test execution optimization model"""
         config = OptimizationConfig(
             target_compression_ratio=2.0,
             enable_quantization=True,
-            enable_structured_pruning=False,  # Отключаем для ускорения
+            enable_structured_pruning=False,  # Disable for acceleration
             enable_distillation=False
         )
         
         optimizer = ModelOptimizer(config)
         
-        # Mock методы для ускорения тестов
+        # Mock methods for acceleration tests
         with patch.object(optimizer, '_measure_model_performance', return_value={
             'size_mb': 10.0, 'latency_ms': 50.0, 'accuracy': 0.9, 'memory_mb': 20.0
         }):
@@ -382,14 +382,14 @@ class TestOptimization:
                 val_data=sample_data
             )
         
-        assert result.success or not result.success  # Результат может быть любым
+        assert result.success or not result.success  # Result can be any
         assert result.optimization_time_sec >= 0
 
 class TestCompressionPipeline:
-    """Тесты compression pipeline"""
+    """Tests compression pipeline"""
     
     def test_pipeline_config_creation(self):
-        """Тест создания конфигурации pipeline"""
+        """Test creation configuration pipeline"""
         config = PipelineConfig(
             name="test_pipeline",
             accuracy_tolerance=0.05,
@@ -401,7 +401,7 @@ class TestCompressionPipeline:
         assert config.compression_ratio_threshold == 2.0
     
     def test_pipeline_creation(self, temp_workspace):
-        """Тест создания pipeline"""
+        """Test creation pipeline"""
         config = PipelineConfig(name="test_compression")
         
         pipeline = CompressionPipeline(
@@ -414,16 +414,16 @@ class TestCompressionPipeline:
     
     @pytest.mark.slow
     def test_pipeline_execution(self, simple_model, sample_data, temp_workspace):
-        """Тест выполнения полного pipeline"""
+        """Test execution full pipeline"""
         config = PipelineConfig(
             name="test_execution",
-            accuracy_tolerance=0.1,  # Более мягкие требования для тестов
+            accuracy_tolerance=0.1,  # More soft requirements for tests
             compression_ratio_threshold=1.5
         )
         
         pipeline = CompressionPipeline(temp_workspace, config)
         
-        # Mock различные стадии для ускорения
+        # Mock various stages for acceleration
         with patch.object(pipeline, '_run_optimization', return_value=Mock(
             optimized_model=simple_model,
             compression_ratio=2.0,
@@ -440,17 +440,17 @@ class TestCompressionPipeline:
         assert hasattr(result, 'pipeline_id')
 
 class TestEvaluation:
-    """Тесты модуля evaluation"""
+    """Tests module evaluation"""
     
     def test_compression_evaluator_creation(self):
-        """Тест создания compression evaluator"""
+        """Test creation compression evaluator"""
         evaluator = CompressionEvaluator()
         
         assert evaluator.device is not None
         assert evaluator.cache_results == True
     
     def test_accuracy_validator_creation(self):
-        """Тест создания accuracy validator"""
+        """Test creation accuracy validator"""
         validator = AccuracyValidator(confidence_level=0.95)
         
         assert validator.confidence_level == 0.95
@@ -458,13 +458,13 @@ class TestEvaluation:
     
     @pytest.mark.slow
     def test_compression_evaluation(self, simple_model, sample_data):
-        """Тест комплексной оценки сжатия"""
+        """Test comprehensive estimation compression"""
         evaluator = CompressionEvaluator()
         
-        # Создаем "сжатую" модель (для теста просто копируем)
-        compressed_model = TestModel(hidden_size=32)  # Меньший размер
+        # Create "compressed" model (for test simply copy)
+        compressed_model = TestModel(hidden_size=32)  # Smaller size
         
-        # Mock некоторые методы для ускорения
+        # Mock some methods for acceleration
         with patch.object(evaluator, '_measure_latency', return_value=25.0):
             with patch.object(evaluator, '_measure_accuracy', return_value=0.9):
                 results = evaluator.comprehensive_evaluation(
@@ -478,12 +478,12 @@ class TestEvaluation:
         assert 'evaluation_id' in results
     
     def test_accuracy_validation(self, simple_model, sample_data):
-        """Тест валидации точности"""
+        """Test validation accuracy"""
         validator = AccuracyValidator()
         
         compressed_model = TestModel(hidden_size=32)
         
-        # Mock получение предсказаний для ускорения
+        # Mock retrieval predictions for acceleration
         with patch.object(validator, '_get_model_predictions', return_value=(
             np.random.randn(100),  # original predictions
             np.random.randn(100),  # compressed predictions
@@ -501,10 +501,10 @@ class TestEvaluation:
         assert hasattr(result, 'test_results')
 
 class TestEdgeDeployment:
-    """Тесты edge deployment"""
+    """Tests edge deployment"""
     
     def test_edge_deployer_creation(self, temp_workspace):
-        """Тест создания edge deployer"""
+        """Test creation edge deployer"""
         deployer = EdgeDeployer(temp_workspace)
         
         assert deployer.workspace_dir == temp_workspace
@@ -512,7 +512,7 @@ class TestEdgeDeployment:
         assert (temp_workspace / "exports").exists()
     
     def test_device_spec_creation(self):
-        """Тест создания спецификации устройства"""
+        """Test creation specifications devices"""
         device_spec = EdgeDeviceSpec(
             platform=EdgePlatform.RASPBERRY_PI,
             cpu_cores=4,
@@ -526,13 +526,13 @@ class TestEdgeDeployment:
         assert device_spec.target_latency_ms == 100.0
     
     def test_device_compatibility_check(self, simple_model, temp_workspace):
-        """Тест проверки совместимости с устройством"""
+        """Test validation compatibility with device"""
         deployer = EdgeDeployer(temp_workspace)
         
         device_spec = EdgeDeviceSpec(
             platform=EdgePlatform.RASPBERRY_PI,
             cpu_cores=4,
-            ram_mb=1024,  # Малое количество RAM для теста
+            ram_mb=1024,  # Small number RAM for test
             storage_mb=16000,
             max_model_size_mb=5.0
         )
@@ -545,7 +545,7 @@ class TestEdgeDeployment:
     
     @pytest.mark.slow
     def test_edge_deployment_execution(self, simple_model, sample_data, temp_workspace):
-        """Тест выполнения edge deployment"""
+        """Test execution edge deployment"""
         deployer = EdgeDeployer(temp_workspace)
         
         device_spec = EdgeDeviceSpec(
@@ -556,7 +556,7 @@ class TestEdgeDeployment:
             max_model_size_mb=100.0
         )
         
-        # Mock некоторые операции для ускорения теста
+        # Mock some operations for acceleration test
         with patch.object(deployer, '_benchmark_deployed_model', return_value={
             'avg_inference_time_ms': 50.0,
             'throughput_samples_per_sec': 20.0,
@@ -574,10 +574,10 @@ class TestEdgeDeployment:
         assert hasattr(result, 'deployed_model_path')
 
 class TestModelAnalyzer:
-    """Тесты model analyzer"""
+    """Tests model analyzer"""
     
     def test_model_analyzer_creation(self):
-        """Тест создания model analyzer"""
+        """Test creation model analyzer"""
         analyzer = ModelAnalyzer(crypto_domain_focus=True)
         
         assert analyzer.crypto_domain_focus == True
@@ -585,7 +585,7 @@ class TestModelAnalyzer:
         assert hasattr(analyzer, 'architecture_patterns')
     
     def test_basic_model_analysis(self, simple_model):
-        """Тест базового анализа модели"""
+        """Test base analysis model"""
         analyzer = ModelAnalyzer()
         
         result = analyzer.analyze_model(
@@ -599,10 +599,10 @@ class TestModelAnalyzer:
         assert result.total_parameters > 0
     
     def test_comprehensive_model_analysis(self, crypto_model):
-        """Тест комплексного анализа crypto модели"""
+        """Test comprehensive analysis crypto model"""
         analyzer = ModelAnalyzer(crypto_domain_focus=True)
         
-        # Создаем sample input для более точного анализа
+        # Create sample input for more exact analysis
         sample_input = torch.randn(1, 10, 100)  # (batch, features, sequence)
         
         result = analyzer.analyze_model(
@@ -617,7 +617,7 @@ class TestModelAnalyzer:
         assert len(result.layer_analyses) > 0
     
     def test_compression_recommendations(self, simple_model):
-        """Тест генерации рекомендаций по сжатию"""
+        """Test generation recommendations by compression"""
         analyzer = ModelAnalyzer()
         
         result = analyzer.analyze_model(simple_model)
@@ -629,29 +629,29 @@ class TestModelAnalyzer:
         assert 'accuracy_risk' in summary
 
 class TestIntegration:
-    """Интеграционные тесты"""
+    """Integration tests"""
     
     @pytest.mark.slow
     def test_end_to_end_compression_workflow(self, crypto_model, crypto_data, temp_workspace):
-        """Полный end-to-end тест workflow сжатия"""
+        """Full end-to-end test workflow compression"""
         
-        # 1. Анализ модели
+        # 1. Analysis model
         analyzer = ModelAnalyzer(crypto_domain_focus=True)
         analysis_result = analyzer.analyze_model(crypto_model, analysis_level=AnalysisLevel.BASIC)
         
         assert analysis_result is not None
         
-        # 2. Оптимизация на основе анализа
+        # 2. Optimization on basis analysis
         config = OptimizationConfig(
             target_compression_ratio=2.0,
             enable_quantization=True,
-            enable_structured_pruning=False,  # Упрощаем для теста
+            enable_structured_pruning=False,  # Simplify for test
             enable_distillation=False
         )
         
         optimizer = ModelOptimizer(config)
         
-        # Mock для ускорения
+        # Mock for acceleration
         with patch.object(optimizer, '_measure_model_performance', return_value={
             'size_mb': 5.0, 'latency_ms': 30.0, 'accuracy': 0.92, 'memory_mb': 15.0
         }):
@@ -661,7 +661,7 @@ class TestIntegration:
                 val_data=crypto_data
             )
         
-        # 3. Валидация результата
+        # 3. Validation result
         validator = AccuracyValidator()
         
         with patch.object(validator, '_get_model_predictions', return_value=(
@@ -697,23 +697,23 @@ class TestIntegration:
                 device_spec=device_spec
             )
         
-        # Проверяем что весь workflow выполнился
+        # Check that entire workflow completed
         assert analysis_result.recommended_techniques is not None
         assert optimization_result is not None
-        assert validation_result.overall_passed in [True, False]  # Может быть любым
+        assert validation_result.overall_passed in [True, False]  # Can be any
         assert deployment_result is not None
     
     def test_pipeline_with_all_techniques(self, simple_model, sample_data, temp_workspace):
-        """Тест pipeline со всеми техниками сжатия"""
+        """Test pipeline with all techniques compression"""
         
-        # Конфигурация с включенными всеми техниками
+        # Configuration with enabled all techniques
         opt_config = OptimizationConfig(
             objective=OptimizationObjective.BALANCED,
             target_compression_ratio=3.0,
             enable_quantization=True,
             enable_structured_pruning=True,
-            enable_unstructured_pruning=False,  # Отключаем для совместимости
-            enable_distillation=False  # Требует teacher модель
+            enable_unstructured_pruning=False,  # Disable for compatibility
+            enable_distillation=False  # Requires teacher model
         )
         
         pipeline_config = PipelineConfig(
@@ -725,7 +725,7 @@ class TestIntegration:
         
         pipeline = CompressionPipeline(temp_workspace, pipeline_config)
         
-        # Mock критические операции для ускорения
+        # Mock critical operations for acceleration
         with patch.object(pipeline.optimizer, 'optimize_model') as mock_optimize:
             mock_optimize.return_value = Mock(
                 optimized_model=simple_model,
@@ -744,13 +744,13 @@ class TestIntegration:
         assert result.pipeline_id is not None
         assert result.duration_seconds >= 0
 
-# Фикстуры для производительности
+# Fixtures for performance
 @pytest.mark.performance
 class TestPerformance:
-    """Тесты производительности"""
+    """Tests performance"""
     
     def test_quantization_speed(self, simple_model):
-        """Тест скорости квантизации"""
+        """Test speed quantization"""
         import time
         
         quantizer = CryptoModelQuantizer()
@@ -761,12 +761,12 @@ class TestPerformance:
         
         quantization_time = end_time - start_time
         
-        # Квантизация должна быть быстрой (менее 5 секунд для простой модели)
+        # Quantization must be fast (less 5 seconds for simple model)
         assert quantization_time < 5.0
         assert quantized_model is not None
     
     def test_model_analysis_speed(self, crypto_model):
-        """Тест скорости анализа модели"""
+        """Test speed analysis model"""
         import time
         
         analyzer = ModelAnalyzer()
@@ -777,15 +777,15 @@ class TestPerformance:
         
         analysis_time = end_time - start_time
         
-        # Анализ должен быть быстрым (менее 10 секунд)
+        # Analysis must be fast (less 10 seconds)
         assert analysis_time < 10.0
         assert result is not None
 
-# Маркеры для pytest
+# Markers for pytest
 pytestmark = [
-    pytest.mark.asyncio,  # Для будущих async тестов
+    pytest.mark.asyncio,  # For future async tests
 ]
 
 if __name__ == "__main__":
-    # Запуск тестов напрямую
+    # Launch tests directly
     pytest.main([__file__, "-v", "--tb=short"])

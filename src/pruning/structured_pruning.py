@@ -1,8 +1,8 @@
 """
-Модуль структурированной pruning для криптотрейдинговых моделей.
-Удаляет целые каналы, фильтры и нейроны для hardware-friendly compression.
+Module structured pruning for crypto trading models.
+Removes integer channels, filters and neurons for hardware-friendly compression.
 
-Resource-constrained deployment patterns для edge computing
+Resource-constrained deployment patterns for edge computing
 """
 
 from typing import Dict, Any, Optional, List, Tuple, Union, Callable
@@ -18,30 +18,30 @@ import copy
 logger = logging.getLogger(__name__)
 
 class StructuredPruningStrategy(Enum):
-    """Стратегии структурированной pruning"""
-    MAGNITUDE = "magnitude"           # По величине весов
-    GRADIENT = "gradient"            # По градиентам
-    FISHER_INFO = "fisher_information"  # По информации Фишера
+    """Strategies structured pruning"""
+    MAGNITUDE = "magnitude"           # By magnitude weights
+    GRADIENT = "gradient"            # By gradients
+    FISHER_INFO = "fisher_information"  # By information Fisher
     LOTTERY_TICKET = "lottery_ticket"   # Lottery Ticket Hypothesis
-    NEURAL_ARCHITECTURE_SEARCH = "nas"  # На основе NAS
+    NEURAL_ARCHITECTURE_SEARCH = "nas"  # On basis NAS
 
 class PruningGranularity(Enum):
-    """Гранулярность pruning"""
-    CHANNEL = "channel"      # Удаление каналов
-    FILTER = "filter"        # Удаление фильтров
-    NEURON = "neuron"        # Удаление нейронов
-    LAYER = "layer"          # Удаление слоев
+    """Granularity pruning"""
+    CHANNEL = "channel"      # Removal channels
+    FILTER = "filter"        # Removal filters
+    NEURON = "neuron"        # Removal neurons
+    LAYER = "layer"          # Removal layers
 
 class BaseStructuredPruner(ABC):
-    """Базовый класс для структурированной pruning"""
+    """Base class for structured pruning"""
     
     def __init__(self, 
                  target_sparsity: float = 0.5,
                  granularity: PruningGranularity = PruningGranularity.CHANNEL):
         """
         Args:
-            target_sparsity: Целевая разреженность (0.5 = 50% pruning)
-            granularity: Уровень granularity pruning
+            target_sparsity: Target sparsity (0.5 = 50% pruning)
+            granularity: Level granularity pruning
         """
         self.target_sparsity = target_sparsity
         self.granularity = granularity
@@ -52,7 +52,7 @@ class BaseStructuredPruner(ABC):
     def calculate_importance_scores(self, 
                                   model: nn.Module,
                                   data_loader: Optional[torch.utils.data.DataLoader] = None) -> Dict[str, torch.Tensor]:
-        """Вычисление importance scores для каждого структурного элемента"""
+        """Computation importance scores for of each structural element"""
         pass
     
     def prune_model(self, 
@@ -60,42 +60,42 @@ class BaseStructuredPruner(ABC):
                    data_loader: Optional[torch.utils.data.DataLoader] = None,
                    validate_fn: Optional[Callable] = None) -> nn.Module:
         """
-        Основной метод pruning модели
+        Main method pruning model
         
         Args:
-            model: Модель для pruning
-            data_loader: DataLoader для вычисления importance scores
-            validate_fn: Функция валидации точности
+            model: Model for pruning
+            data_loader: DataLoader for computations importance scores
+            validate_fn: Function validation accuracy
             
         Returns:
-            Pruned модель
+            Pruned model
         """
-        self.logger.info(f"Начинаем структурированную pruning. Цель: {self.target_sparsity*100:.1f}%")
+        self.logger.info(f"Begin structured pruning. Goal: {self.target_sparsity*100:.1f}%")
         
-        # Создаем копию модели
+        # Create copy model
         pruned_model = copy.deepcopy(model)
         
-        # Вычисляем importance scores
+        # Compute importance scores
         importance_scores = self.calculate_importance_scores(pruned_model, data_loader)
         
-        # Применяем pruning с постепенным увеличением sparsity
+        # Apply pruning with gradual increase sparsity
         current_sparsity = 0.0
-        sparsity_step = min(0.1, self.target_sparsity / 5)  # Постепенное увеличение
+        sparsity_step = min(0.1, self.target_sparsity / 5)  # Gradual increase
         
         while current_sparsity < self.target_sparsity:
             next_sparsity = min(current_sparsity + sparsity_step, self.target_sparsity)
             
-            # Применяем pruning для текущего уровня sparsity
+            # Apply pruning for current level sparsity
             pruned_model = self._apply_pruning_step(
                 pruned_model, importance_scores, next_sparsity
             )
             
-            # Валидация точности если предоставлена функция
+            # Validation accuracy if provided function
             if validate_fn:
                 accuracy = validate_fn(pruned_model)
-                self.logger.info(f"Sparsity: {next_sparsity*100:.1f}%, Точность: {accuracy:.4f}")
+                self.logger.info(f"Sparsity: {next_sparsity*100:.1f}%, Accuracy: {accuracy:.4f}")
                 
-                # Сохраняем историю
+                # Save history
                 self.pruning_history.append({
                     "sparsity": next_sparsity,
                     "accuracy": accuracy,
@@ -104,10 +104,10 @@ class BaseStructuredPruner(ABC):
             
             current_sparsity = next_sparsity
         
-        # Финализация pruning
+        # Finalization pruning
         final_model = self._finalize_pruning(pruned_model)
         
-        self.logger.info(f"Структурированная pruning завершена. Финальная sparsity: {current_sparsity*100:.1f}%")
+        self.logger.info(f"Structured pruning completed. Final sparsity: {current_sparsity*100:.1f}%")
         
         return final_model
     
@@ -115,13 +115,13 @@ class BaseStructuredPruner(ABC):
                            model: nn.Module, 
                            importance_scores: Dict[str, torch.Tensor],
                            target_sparsity: float) -> nn.Module:
-        """Применение одного шага pruning"""
-        # Определяем какие элементы нужно удалить
+        """Application one step pruning"""
+        # Define which elements needed remove
         elements_to_prune = self._select_elements_to_prune(
             importance_scores, target_sparsity
         )
         
-        # Применяем pruning в зависимости от granularity
+        # Apply pruning in dependencies from granularity
         if self.granularity == PruningGranularity.CHANNEL:
             model = self._prune_channels(model, elements_to_prune)
         elif self.granularity == PruningGranularity.FILTER:
@@ -129,50 +129,50 @@ class BaseStructuredPruner(ABC):
         elif self.granularity == PruningGranularity.NEURON:
             model = self._prune_neurons(model, elements_to_prune)
         else:
-            raise ValueError(f"Неподдерживаемая granularity: {self.granularity}")
+            raise ValueError(f"Unsupported granularity: {self.granularity}")
         
         return model
     
     def _select_elements_to_prune(self, 
                                  importance_scores: Dict[str, torch.Tensor],
                                  target_sparsity: float) -> Dict[str, List[int]]:
-        """Выбор элементов для удаления на основе importance scores"""
+        """Selection elements for removal on basis importance scores"""
         elements_to_prune = {}
         
         for layer_name, scores in importance_scores.items():
-            # Количество элементов для удаления
+            # Number elements for removal
             num_elements = len(scores)
             num_to_prune = int(num_elements * target_sparsity)
             
-            # Сортируем по importance (ascending - удаляем наименее важные)
+            # Sort by importance (ascending - remove least important)
             sorted_indices = torch.argsort(scores).tolist()
             
-            # Выбираем наименее важные элементы
+            # Select least important elements
             elements_to_prune[layer_name] = sorted_indices[:num_to_prune]
         
         return elements_to_prune
     
     @abstractmethod
     def _prune_channels(self, model: nn.Module, elements_to_prune: Dict[str, List[int]]) -> nn.Module:
-        """Удаление каналов"""
+        """Removal channels"""
         pass
     
     @abstractmethod
     def _prune_filters(self, model: nn.Module, elements_to_prune: Dict[str, List[int]]) -> nn.Module:
-        """Удаление фильтров"""
+        """Removal filters"""
         pass
     
     @abstractmethod
     def _prune_neurons(self, model: nn.Module, elements_to_prune: Dict[str, List[int]]) -> nn.Module:
-        """Удаление нейронов"""
+        """Removal neurons"""
         pass
     
     def _finalize_pruning(self, model: nn.Module) -> nn.Module:
-        """Финализация pruning - создание нового компактного представления"""
-        # Удаляем pruning masks и создаем компактную модель
+        """Finalization pruning - creation new compact representations"""
+        # Remove pruning masks and create compact model
         for module in model.modules():
             if hasattr(module, 'weight_mask'):
-                # Применяем маску и удаляем её
+                # Apply mask and remove its
                 module.weight = nn.Parameter(module.weight * module.weight_mask)
                 delattr(module, 'weight_mask')
             
@@ -183,7 +183,7 @@ class BaseStructuredPruner(ABC):
         return model
     
     def _calculate_model_size(self, model: nn.Module) -> float:
-        """Расчет размера модели в MB"""
+        """Calculation size model in MB"""
         param_size = 0
         for param in model.parameters():
             param_size += param.nelement() * param.element_size()
@@ -191,12 +191,12 @@ class BaseStructuredPruner(ABC):
         return param_size / 1024 / 1024
 
 class MagnitudeStructuredPruner(BaseStructuredPruner):
-    """Структурированная pruning на основе величины весов"""
+    """Structured pruning on basis magnitudes weights"""
     
     def calculate_importance_scores(self, 
                                   model: nn.Module,
                                   data_loader: Optional[torch.utils.data.DataLoader] = None) -> Dict[str, torch.Tensor]:
-        """Вычисление importance на основе L2 norm весов"""
+        """Computation importance on basis L2 norm weights"""
         importance_scores = {}
         
         for name, module in model.named_modules():
@@ -205,7 +205,7 @@ class MagnitudeStructuredPruner(BaseStructuredPruner):
                 
                 if self.granularity == PruningGranularity.CHANNEL:
                     if len(weight.shape) == 4:  # Conv2d
-                        # Для conv слоев - importance каналов (dim=1)
+                        # For conv layers - importance channels (dim=1)
                         scores = torch.norm(weight, dim=(0, 2, 3))
                     elif len(weight.shape) == 3:  # Conv1d
                         scores = torch.norm(weight, dim=(0, 2))
@@ -214,13 +214,13 @@ class MagnitudeStructuredPruner(BaseStructuredPruner):
                 
                 elif self.granularity == PruningGranularity.FILTER:
                     if len(weight.shape) >= 3:  # Conv layers
-                        # Importance фильтров (dim=0)
+                        # Importance filters (dim=0)
                         scores = torch.norm(weight.view(weight.size(0), -1), dim=1)
                     else:  # Linear
                         scores = torch.norm(weight, dim=1)
                 
                 else:  # NEURON
-                    # Для нейронов используем norm по входящим весам
+                    # For neurons use norm by incoming weights
                     if len(weight.shape) >= 2:
                         scores = torch.norm(weight.view(weight.size(0), -1), dim=1)
                     else:
@@ -231,24 +231,24 @@ class MagnitudeStructuredPruner(BaseStructuredPruner):
         return importance_scores
     
     def _prune_channels(self, model: nn.Module, elements_to_prune: Dict[str, List[int]]) -> nn.Module:
-        """Удаление каналов в Conv и Linear слоях"""
+        """Removal channels in Conv and Linear layers"""
         for name, indices in elements_to_prune.items():
             module = dict(model.named_modules())[name]
             
             if isinstance(module, (nn.Conv2d, nn.Conv1d)):
-                # Создаем маску для каналов
+                # Create mask for channels
                 num_channels = module.weight.size(1)
                 mask = torch.ones(num_channels, device=module.weight.device)
                 mask[indices] = 0
                 
-                # Применяем маску к весам
+                # Apply mask to weights
                 if len(module.weight.shape) == 4:  # Conv2d
                     module.weight.data = module.weight.data * mask.view(1, -1, 1, 1)
                 else:  # Conv1d
                     module.weight.data = module.weight.data * mask.view(1, -1, 1)
             
             elif isinstance(module, nn.Linear):
-                # Для Linear слоев прюним входящие connections
+                # For Linear layers prune incoming connections
                 num_features = module.weight.size(1)
                 mask = torch.ones(num_features, device=module.weight.device)
                 mask[indices] = 0
@@ -258,31 +258,31 @@ class MagnitudeStructuredPruner(BaseStructuredPruner):
         return model
     
     def _prune_filters(self, model: nn.Module, elements_to_prune: Dict[str, List[int]]) -> nn.Module:
-        """Удаление фильтров в Conv и нейронов в Linear слоях"""
+        """Removal filters in Conv and neurons in Linear layers"""
         for name, indices in elements_to_prune.items():
             module = dict(model.named_modules())[name]
             
             if isinstance(module, (nn.Conv2d, nn.Conv1d, nn.Linear)):
-                # Создаем маску для фильтров/нейронов
+                # Create mask for filters/neurons
                 num_filters = module.weight.size(0)
                 mask = torch.ones(num_filters, device=module.weight.device)
                 mask[indices] = 0
                 
-                # Применяем маску к весам
+                # Apply mask to weights
                 module.weight.data = module.weight.data * mask.view(-1, *([1] * (len(module.weight.shape) - 1)))
                 
-                # Если есть bias, применяем маску и к нему
+                # If exists bias, apply mask and to it
                 if module.bias is not None:
                     module.bias.data = module.bias.data * mask
         
         return model
     
     def _prune_neurons(self, model: nn.Module, elements_to_prune: Dict[str, List[int]]) -> nn.Module:
-        """Удаление нейронов - аналогично фильтрам для большинства случаев"""
+        """Removal neurons - similarly filters for most cases"""
         return self._prune_filters(model, elements_to_prune)
 
 class GradientStructuredPruner(BaseStructuredPruner):
-    """Структурированная pruning на основе градиентов"""
+    """Structured pruning on basis gradients"""
     
     def __init__(self, 
                  target_sparsity: float = 0.5,
@@ -295,40 +295,40 @@ class GradientStructuredPruner(BaseStructuredPruner):
     def calculate_importance_scores(self, 
                                   model: nn.Module,
                                   data_loader: Optional[torch.utils.data.DataLoader] = None) -> Dict[str, torch.Tensor]:
-        """Вычисление importance на основе накопленных градиентов"""
+        """Computation importance on basis accumulated gradients"""
         if data_loader is None:
-            raise ValueError("DataLoader необходим для gradient-based pruning")
+            raise ValueError("DataLoader required for gradient-based pruning")
         
         model.train()
         self.accumulated_gradients = {}
         
-        # Накапливаем градиенты
+        # Accumulate gradients
         for step, batch in enumerate(data_loader):
             if step >= self.gradient_accumulation_steps:
                 break
             
-            # Forward pass (предполагаем что batch содержит (input, target))
+            # Forward pass (assume that batch contains (input, target))
             if isinstance(batch, (list, tuple)) and len(batch) == 2:
                 inputs, targets = batch
                 outputs = model(inputs)
                 
-                # Простая loss функция - MSE
+                # Simple loss function - MSE
                 loss = nn.MSELoss()(outputs, targets)
             else:
-                # Если только входы, используем reconstruction loss
+                # If only inputs, use reconstruction loss
                 outputs = model(batch)
                 loss = nn.MSELoss()(outputs, batch)
             
             # Backward pass
             loss.backward()
             
-            # Накапливаем градиенты
+            # Accumulate gradients
             self._accumulate_gradients(model)
             
-            # Очищаем градиенты
+            # Clear gradients
             model.zero_grad()
         
-        # Вычисляем importance scores на основе накопленных градиентов
+        # Compute importance scores on basis accumulated gradients
         importance_scores = {}
         
         for name, module in model.named_modules():
@@ -355,7 +355,7 @@ class GradientStructuredPruner(BaseStructuredPruner):
         return importance_scores
     
     def _accumulate_gradients(self, model: nn.Module) -> None:
-        """Накопление градиентов для analysis"""
+        """Accumulation gradients for analysis"""
         for name, module in model.named_modules():
             if isinstance(module, (nn.Conv2d, nn.Conv1d, nn.Linear)):
                 if module.weight.grad is not None:
@@ -365,24 +365,24 @@ class GradientStructuredPruner(BaseStructuredPruner):
                     self.accumulated_gradients[name] += module.weight.grad.abs()
     
     def _prune_channels(self, model: nn.Module, elements_to_prune: Dict[str, List[int]]) -> nn.Module:
-        """Использует тот же метод что и MagnitudeStructuredPruner"""
+        """Uses that same method that and MagnitudeStructuredPruner"""
         magnitude_pruner = MagnitudeStructuredPruner(self.target_sparsity, self.granularity)
         return magnitude_pruner._prune_channels(model, elements_to_prune)
     
     def _prune_filters(self, model: nn.Module, elements_to_prune: Dict[str, List[int]]) -> nn.Module:
-        """Использует тот же метод что и MagnitudeStructuredPruner"""
+        """Uses that same method that and MagnitudeStructuredPruner"""
         magnitude_pruner = MagnitudeStructuredPruner(self.target_sparsity, self.granularity)
         return magnitude_pruner._prune_filters(model, elements_to_prune)
     
     def _prune_neurons(self, model: nn.Module, elements_to_prune: Dict[str, List[int]]) -> nn.Module:
-        """Использует тот же метод что и MagnitudeStructuredPruner"""
+        """Uses that same method that and MagnitudeStructuredPruner"""
         magnitude_pruner = MagnitudeStructuredPruner(self.target_sparsity, self.granularity)
         return magnitude_pruner._prune_neurons(model, elements_to_prune)
 
 class CryptoTradingStructuredPruner:
     """
-    Специализированный structured pruner для crypto trading моделей
-    с учетом специфики временных рядов и real-time requirements
+    Specialized structured pruner for crypto trading models
+    with considering specifics temporal series and real-time requirements
     """
     
     def __init__(self, 
@@ -391,9 +391,9 @@ class CryptoTradingStructuredPruner:
                  latency_target_ms: float = 1.0):
         """
         Args:
-            target_compression_ratio: Целевой коэффициент сжатия
-            accuracy_threshold: Минимальная точность
-            latency_target_ms: Целевая латентность в мс
+            target_compression_ratio: Target coefficient compression
+            accuracy_threshold: Minimum accuracy
+            latency_target_ms: Target latency in ms
         """
         self.target_compression_ratio = target_compression_ratio
         self.accuracy_threshold = accuracy_threshold
@@ -408,23 +408,23 @@ class CryptoTradingStructuredPruner:
                                 validation_data: torch.utils.data.DataLoader,
                                 strategy: StructuredPruningStrategy = StructuredPruningStrategy.MAGNITUDE) -> nn.Module:
         """
-        Специализированная pruning для crypto trading models
+        Specialized pruning for crypto trading models
         
         Args:
-            model: Модель для pruning
-            training_data: Данные для вычисления importance
-            validation_data: Данные для валидации
-            strategy: Стратегия pruning
+            model: Model for pruning
+            training_data: Data for computations importance
+            validation_data: Data for validation
+            strategy: Strategy pruning
             
         Returns:
-            Optimized модель для crypto trading
+            Optimized model for crypto trading
         """
-        self.logger.info(f"Начинаем crypto-optimized pruning с стратегией {strategy.value}")
+        self.logger.info(f"Begin crypto-optimized pruning with strategy {strategy.value}")
         
         original_size = self._calculate_model_size(model)
         target_size = original_size / self.target_compression_ratio
         
-        # Выбираем pruner на основе стратегии
+        # Select pruner on basis strategies
         if strategy == StructuredPruningStrategy.MAGNITUDE:
             pruner = MagnitudeStructuredPruner(
                 target_sparsity=1.0 - (1.0 / self.target_compression_ratio),
@@ -436,28 +436,28 @@ class CryptoTradingStructuredPruner:
                 granularity=PruningGranularity.CHANNEL
             )
         else:
-            raise ValueError(f"Стратегия {strategy.value} пока не реализована")
+            raise ValueError(f"Strategy {strategy.value} while not implemented")
         
-        # Создаем функцию валидации
+        # Create function validation
         def validate_accuracy(model_to_validate):
             return self._validate_crypto_model(model_to_validate, validation_data)
         
-        # Применяем pruning
+        # Apply pruning
         pruned_model = pruner.prune_model(
             model=model,
             data_loader=training_data,
             validate_fn=validate_accuracy
         )
         
-        # Дополнительные оптимизации для crypto trading
+        # Additional optimization for crypto trading
         optimized_model = self._apply_crypto_optimizations(pruned_model)
         
-        # Финальная валидация
+        # Final validation
         final_accuracy = validate_accuracy(optimized_model)
         final_size = self._calculate_model_size(optimized_model)
         actual_compression_ratio = original_size / final_size
         
-        # Сохраняем результаты
+        # Save results
         self.pruning_results = {
             "original_size_mb": original_size,
             "final_size_mb": final_size,
@@ -468,19 +468,19 @@ class CryptoTradingStructuredPruner:
             "pruning_history": pruner.pruning_history
         }
         
-        self.logger.info(f"Crypto trading pruning завершен. "
-                        f"Коэффициент сжатия: {actual_compression_ratio:.2f}x, "
-                        f"Точность: {final_accuracy:.4f}")
+        self.logger.info(f"Crypto trading pruning completed. "
+                        f"Coefficient compression: {actual_compression_ratio:.2f}x, "
+                        f"Accuracy: {final_accuracy:.4f}")
         
         if final_accuracy < self.accuracy_threshold:
-            self.logger.warning(f"Точность ниже порога: {final_accuracy:.4f} < {self.accuracy_threshold:.4f}")
+            self.logger.warning(f"Accuracy below threshold: {final_accuracy:.4f} < {self.accuracy_threshold:.4f}")
         
         return optimized_model
     
     def _validate_crypto_model(self, 
                               model: nn.Module, 
                               validation_data: torch.utils.data.DataLoader) -> float:
-        """Валидация модели на crypto trading задачах"""
+        """Validation model on crypto trading tasks"""
         model.eval()
         total_loss = 0.0
         num_batches = 0
@@ -491,33 +491,33 @@ class CryptoTradingStructuredPruner:
                     inputs, targets = batch
                     outputs = model(inputs)
                     
-                    # Для crypto trading используем комбинацию метрик
+                    # For crypto trading use combination metrics
                     mse_loss = nn.MSELoss()(outputs, targets)
                     
-                    # Дополнительная метрика - directional accuracy для trading
+                    # Additional metric - directional accuracy for trading
                     direction_acc = self._calculate_directional_accuracy(outputs, targets)
                     
-                    # Комбинированная метрика
-                    combined_loss = mse_loss - 0.1 * direction_acc  # Поощряем правильное направление
+                    # Combined metric
+                    combined_loss = mse_loss - 0.1 * direction_acc  # Encourage correct direction
                     
                     total_loss += combined_loss.item()
                     num_batches += 1
                 
-                if num_batches >= 100:  # Ограничиваем для скорости
+                if num_batches >= 100:  # Limit for speed
                     break
         
-        # Возвращаем accuracy (обратно пропорционально loss)
+        # Return accuracy (back proportionally loss)
         avg_loss = total_loss / num_batches if num_batches > 0 else float('inf')
-        accuracy = max(0.0, 1.0 - avg_loss)  # Простое преобразование
+        accuracy = max(0.0, 1.0 - avg_loss)  # Simple transformation
         
         return accuracy
     
     def _calculate_directional_accuracy(self, 
                                       predictions: torch.Tensor, 
                                       targets: torch.Tensor) -> torch.Tensor:
-        """Вычисление directional accuracy для trading signals"""
+        """Computation directional accuracy for trading signals"""
         if len(predictions.shape) > 1 and predictions.shape[-1] > 1:
-            # Для multi-output предсказаний берем первый выход
+            # For multi-output predictions take first output
             pred_direction = torch.sign(predictions[1:, 0] - predictions[:-1, 0])
             target_direction = torch.sign(targets[1:, 0] - targets[:-1, 0])
         else:
@@ -528,39 +528,39 @@ class CryptoTradingStructuredPruner:
         return correct_direction.mean()
     
     def _apply_crypto_optimizations(self, model: nn.Module) -> nn.Module:
-        """Дополнительные оптимизации для crypto trading"""
+        """Additional optimization for crypto trading"""
         optimized_model = model
         
         try:
-            # 1. Оптимизация для временных рядов
+            # 1. Optimization for temporal series
             optimized_model = self._optimize_for_time_series(optimized_model)
             
-            # 2. Memory layout оптимизация
+            # 2. Memory layout optimization
             optimized_model = self._optimize_memory_layout(optimized_model)
             
-            # 3. Batch normalization folding если возможно
+            # 3. Batch normalization folding if possibly
             optimized_model = self._fold_batch_normalization(optimized_model)
             
         except Exception as e:
-            self.logger.warning(f"Некоторые crypto оптимизации не удались: {e}")
+            self.logger.warning(f"Some crypto optimization not succeeded: {e}")
         
         return optimized_model
     
     def _optimize_for_time_series(self, model: nn.Module) -> nn.Module:
-        """Оптимизация для работы с временными рядами crypto данных"""
-        # Проверяем наличие рекуррентных слоев и оптимизируем их
+        """Optimization for work with temporal series crypto data"""
+        # Check presence recurrent layers and optimize their
         for name, module in model.named_modules():
             if isinstance(module, (nn.LSTM, nn.GRU)):
-                # Включаем batch_first для лучшей производительности
+                # Enable batch_first for best performance
                 if hasattr(module, 'batch_first') and not module.batch_first:
-                    self.logger.info(f"Конвертируем {name} в batch_first mode")
-                    # Это сложная операция, требует пересоздания слоя
-                    # Для простоты пропускаем, но в production это важно
+                    self.logger.info(f"Convert {name} in batch_first mode")
+                    # This complex operation, requires recreation layer
+                    # For simplicity skip, but in production this important
         
         return model
     
     def _optimize_memory_layout(self, model: nn.Module) -> nn.Module:
-        """Оптимизация memory layout"""
+        """Optimization memory layout"""
         for param in model.parameters():
             if not param.is_contiguous():
                 param.data = param.data.contiguous()
@@ -568,8 +568,8 @@ class CryptoTradingStructuredPruner:
         return model
     
     def _fold_batch_normalization(self, model: nn.Module) -> nn.Module:
-        """Folding batch normalization в conv слои для ускорения inference"""
-        # Простая реализация batch norm folding
+        """Folding batch normalization in conv layers for acceleration inference"""
+        # Simple implementation batch norm folding
         modules_list = list(model.named_modules())
         
         for i, (name, module) in enumerate(modules_list[:-1]):
@@ -579,22 +579,22 @@ class CryptoTradingStructuredPruner:
                 isinstance(next_module, nn.BatchNorm1d)):
                 
                 try:
-                    # Fold batch norm в предыдущий слой
+                    # Fold batch norm in previous layer
                     self._fold_bn_into_conv(module, next_module)
                     self.logger.debug(f"Folded batch norm from {next_name} into {name}")
                 except Exception as e:
-                    self.logger.warning(f"Не удалось fold batch norm: {e}")
+                    self.logger.warning(f"Not succeeded fold batch norm: {e}")
         
         return model
     
     def _fold_bn_into_conv(self, conv_module, bn_module):
-        """Folding batch normalization в conv слой"""
-        # Этот процесс требует пересчета весов conv слоя
-        # В production версии здесь была бы полная реализация
+        """Folding batch normalization in conv layer"""
+        # This process requires recalculation weights conv layer
+        # IN production version here was would full implementation
         pass
     
     def _calculate_model_size(self, model: nn.Module) -> float:
-        """Расчет размера модели в MB"""
+        """Calculation size model in MB"""
         param_size = 0
         for param in model.parameters():
             param_size += param.nelement() * param.element_size()
@@ -602,7 +602,7 @@ class CryptoTradingStructuredPruner:
         return param_size / 1024 / 1024
     
     def get_pruning_report(self) -> Dict[str, Any]:
-        """Получение детального отчета о pruning"""
+        """Retrieval detailed report about pruning"""
         return {
             "pruning_results": self.pruning_results,
             "configuration": {
@@ -614,22 +614,22 @@ class CryptoTradingStructuredPruner:
         }
     
     def _get_recommendations(self) -> Dict[str, str]:
-        """Рекомендации по дальнейшей оптимизации"""
+        """Recommendations by further optimization"""
         recommendations = {}
         
         if not self.pruning_results:
-            return {"general": "Запустите pruning для получения рекомендаций"}
+            return {"general": "Run pruning for retrieval recommendations"}
         
         compression_ratio = self.pruning_results.get("compression_ratio", 1.0)
         accuracy = self.pruning_results.get("accuracy_retained", 0.0)
         
         if compression_ratio < self.target_compression_ratio * 0.8:
-            recommendations["compression"] = "Попробуйте более агрессивную pruning или комбинацию с quantization"
+            recommendations["compression"] = "Try more aggressive pruning or combination with quantization"
         
         if accuracy < self.accuracy_threshold:
-            recommendations["accuracy"] = "Рассмотрите fine-tuning после pruning или менее агрессивные настройки"
+            recommendations["accuracy"] = "Consider fine-tuning after pruning or less aggressive settings"
         
         if compression_ratio >= self.target_compression_ratio:
-            recommendations["next_step"] = "Попробуйте knowledge distillation для дальнейшего улучшения"
+            recommendations["next_step"] = "Try knowledge distillation for further improvements"
         
         return recommendations

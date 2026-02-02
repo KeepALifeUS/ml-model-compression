@@ -1,8 +1,8 @@
 """
-Универсальный оптимизатор моделей для криптотрейдинга с комбинированием
-техник сжатия и  production optimization patterns.
+Universal optimizer models for crypto trading with combining
+techniques compression and  production optimization patterns.
 
-Holistic optimization patterns для production ML deployment
+Holistic optimization patterns for production ML deployment
 """
 
 from typing import Dict, Any, Optional, List, Tuple, Union, Callable
@@ -27,26 +27,26 @@ from ..distillation.teacher_student import TeacherStudentArchitecture, EnsembleD
 logger = logging.getLogger(__name__)
 
 class OptimizationObjective(Enum):
-    """Цели оптимизации модели"""
-    LATENCY = "latency"              # Минимизация латентности
-    MEMORY = "memory"                # Минимизация памяти
-    ACCURACY = "accuracy"            # Максимизация точности
-    THROUGHPUT = "throughput"        # Максимизация пропускной способности
-    BALANCED = "balanced"            # Баланс всех факторов
-    EDGE_DEPLOYMENT = "edge"         # Оптимизация для edge devices
+    """Goals optimization model"""
+    LATENCY = "latency"              # Minimization latency
+    MEMORY = "memory"                # Minimization memory
+    ACCURACY = "accuracy"            # Maximization accuracy
+    THROUGHPUT = "throughput"        # Maximization throughput capabilities
+    BALANCED = "balanced"            # Balance all factors
+    EDGE_DEPLOYMENT = "edge"         # Optimization for edge devices
 
 class OptimizationStrategy(Enum):
-    """Стратегии оптимизации"""
-    SEQUENTIAL = "sequential"        # Последовательное применение техник
-    PARALLEL = "parallel"           # Параллельное применение
-    ADAPTIVE = "adaptive"           # Адаптивный выбор техник
-    MULTI_OBJECTIVE = "multi_obj"   # Многокритериальная оптимизация
-    EVOLUTIONARY = "evolutionary"   # Эволюционная оптимизация
+    """Strategies optimization"""
+    SEQUENTIAL = "sequential"        # Sequential application techniques
+    PARALLEL = "parallel"           # Parallel application
+    ADAPTIVE = "adaptive"           # Adaptive selection techniques
+    MULTI_OBJECTIVE = "multi_obj"   # Multi-criteria optimization
+    EVOLUTIONARY = "evolutionary"   # Evolutionary optimization
 
 @dataclass
 class OptimizationConfig:
-    """Конфигурация оптимизации"""
-    # Общие параметры
+    """Configuration optimization"""
+    # General parameters
     objective: OptimizationObjective = OptimizationObjective.BALANCED
     strategy: OptimizationStrategy = OptimizationStrategy.ADAPTIVE
     target_compression_ratio: float = 4.0
@@ -54,31 +54,31 @@ class OptimizationConfig:
     latency_target_ms: float = 1.0
     memory_limit_mb: float = 50.0
     
-    # Quantization параметры
+    # Quantization parameters
     enable_quantization: bool = True
     quantization_precision: PrecisionLevel = PrecisionLevel.INT8
     quantization_mode: DynamicQuantizationMode = DynamicQuantizationMode.BALANCED
     
-    # Pruning параметры
+    # Pruning parameters
     enable_structured_pruning: bool = True
     enable_unstructured_pruning: bool = False
     structured_pruning_strategy: StructuredPruningStrategy = StructuredPruningStrategy.MAGNITUDE
     unstructured_pruning_strategy: UnstructuredPruningStrategy = UnstructuredPruningStrategy.MAGNITUDE
     
-    # Distillation параметры
+    # Distillation parameters
     enable_distillation: bool = False
     distillation_temperature: float = 4.0
     distillation_alpha: float = 0.7
     
-    # Crypto trading специфичные параметры
+    # Crypto trading specific parameters
     crypto_features: bool = True
     hft_optimization: bool = True
     real_time_constraints: bool = True
     
     def to_dict(self) -> Dict[str, Any]:
-        """Конвертация в словарь"""
+        """Conversion in dictionary"""
         result = asdict(self)
-        # Конвертируем enums в строки
+        # Convert enums in strings
         for key, value in result.items():
             if hasattr(value, 'value'):
                 result[key] = value.value
@@ -86,38 +86,38 @@ class OptimizationConfig:
 
 @dataclass
 class OptimizationResult:
-    """Результат оптимизации модели"""
-    # Модель и метрики
+    """Result optimization model"""
+    # Model and metrics
     optimized_model: nn.Module
     original_size_mb: float
     optimized_size_mb: float
     compression_ratio: float
     
-    # Performance метрики
+    # Performance metrics
     original_latency_ms: float
     optimized_latency_ms: float
     latency_improvement: float
     accuracy_retention: float
     
-    # Примененные техники
+    # Applied techniques
     applied_techniques: List[str]
     optimization_config: OptimizationConfig
     
-    # Детальная статистика
+    # Detailed statistics
     detailed_stats: Dict[str, Any]
     optimization_time_sec: float
     
     def to_dict(self) -> Dict[str, Any]:
-        """Конвертация в словарь (исключая модель)"""
+        """Conversion in dictionary (excluding model)"""
         result = asdict(self)
-        # Удаляем модель из serialization
+        # Remove model from serialization
         del result['optimized_model']
         return result
 
 class ModelOptimizer:
     """
-    Универсальный оптимизатор моделей для crypto trading
-    с поддержкой различных техник сжатия и оптимизации
+    Universal optimizer models for crypto trading
+    with support various techniques compression and optimization
     """
     
     def __init__(self, 
@@ -125,8 +125,8 @@ class ModelOptimizer:
                  device: Optional[torch.device] = None):
         """
         Args:
-            config: Конфигурация оптимизации
-            device: Устройство для вычислений
+            config: Configuration optimization
+            device: Device for computations
         """
         self.config = config or OptimizationConfig()
         self.device = device or torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -135,11 +135,11 @@ class ModelOptimizer:
         self.optimization_history = []
         self.performance_cache = {}
         
-        # Инициализация оптимизаторов техник
+        # Initialization optimizers techniques
         self._init_technique_optimizers()
     
     def _init_technique_optimizers(self):
-        """Инициализация оптимизаторов для различных техник"""
+        """Initialization optimizers for various techniques"""
         # Quantization optimizers
         if self.config.enable_quantization:
             self.quantizer = DynamicQuantizer(
@@ -169,30 +169,30 @@ class ModelOptimizer:
                       val_data: torch.utils.data.DataLoader,
                       teacher_model: Optional[nn.Module] = None) -> OptimizationResult:
         """
-        Главный метод оптимизации модели
+        Main method optimization model
         
         Args:
-            model: Исходная модель для оптимизации
-            train_data: Обучающие данные
-            val_data: Валидационные данные
-            teacher_model: Teacher модель для distillation
+            model: Original model for optimization
+            train_data: Training data
+            val_data: Validation data
+            teacher_model: Teacher model for distillation
             
         Returns:
-            Результат оптимизации с оптимизированной моделью
+            Result optimization with optimized model
         """
         start_time = time.time()
         
-        self.logger.info(f"Начинаем оптимизацию модели с целью: {self.config.objective.value}")
-        self.logger.info(f"Стратегия: {self.config.strategy.value}")
+        self.logger.info(f"Begin optimization model with purpose: {self.config.objective.value}")
+        self.logger.info(f"Strategy: {self.config.strategy.value}")
         
-        # Получаем базовые метрики
+        # Retrieve base metrics
         original_metrics = self._measure_model_performance(model, val_data)
         
-        # Создаем копию модели для оптимизации
+        # Create copy model for optimization
         optimized_model = copy.deepcopy(model)
         applied_techniques = []
         
-        # Выбираем стратегию оптимизации
+        # Select strategy optimization
         if self.config.strategy == OptimizationStrategy.SEQUENTIAL:
             optimized_model, techniques = self._sequential_optimization(
                 optimized_model, train_data, val_data, teacher_model
@@ -216,13 +216,13 @@ class ModelOptimizer:
         
         applied_techniques.extend(techniques)
         
-        # Финальные оптимизации
+        # Final optimization
         optimized_model = self._apply_final_optimizations(optimized_model)
         
-        # Измеряем финальные метрики
+        # Measure final metrics
         final_metrics = self._measure_model_performance(optimized_model, val_data)
         
-        # Создаем результат
+        # Create result
         optimization_time = time.time() - start_time
         result = self._create_optimization_result(
             original_model=model,
@@ -233,14 +233,14 @@ class ModelOptimizer:
             optimization_time=optimization_time
         )
         
-        # Сохраняем в историю
+        # Save in history
         self.optimization_history.append({
             'timestamp': time.time(),
             'config': self.config.to_dict(),
             'result_summary': result.to_dict()
         })
         
-        self.logger.info(f"Оптимизация завершена за {optimization_time:.2f}с. "
+        self.logger.info(f"Optimization completed for {optimization_time:.2f}with. "
                         f"Compression ratio: {result.compression_ratio:.2f}x, "
                         f"Latency improvement: {result.latency_improvement:.1f}%")
         
@@ -251,13 +251,13 @@ class ModelOptimizer:
                                train_data: torch.utils.data.DataLoader,
                                val_data: torch.utils.data.DataLoader,
                                teacher_model: Optional[nn.Module]) -> Tuple[nn.Module, List[str]]:
-        """Последовательная оптимизация"""
+        """Sequential optimization"""
         applied_techniques = []
         current_model = model
         
-        # 1. Knowledge Distillation (если есть teacher)
+        # 1. Knowledge Distillation (if exists teacher)
         if self.config.enable_distillation and teacher_model is not None:
-            self.logger.info("Применяем knowledge distillation...")
+            self.logger.info("Apply knowledge distillation...")
             current_model = self._apply_knowledge_distillation(
                 teacher_model, current_model, train_data, val_data
             )
@@ -265,7 +265,7 @@ class ModelOptimizer:
         
         # 2. Structured Pruning
         if self.config.enable_structured_pruning:
-            self.logger.info("Применяем structured pruning...")
+            self.logger.info("Apply structured pruning...")
             current_model = self.structured_pruner.prune_for_crypto_trading(
                 current_model, train_data, val_data, self.config.structured_pruning_strategy
             )
@@ -273,15 +273,15 @@ class ModelOptimizer:
         
         # 3. Unstructured Pruning
         if self.config.enable_unstructured_pruning:
-            self.logger.info("Применяем unstructured pruning...")
+            self.logger.info("Apply unstructured pruning...")
             current_model = self.unstructured_pruner.adaptive_pruning(
                 current_model, train_data, val_data
             )
             applied_techniques.append("unstructured_pruning")
         
-        # 4. Quantization (последний шаг)
+        # 4. Quantization (last step)
         if self.config.enable_quantization:
-            self.logger.info("Применяем quantization...")
+            self.logger.info("Apply quantization...")
             input_shape = self._get_model_input_shape(current_model)
             current_model = self.quantizer.quantize_for_hft(
                 current_model, input_shape
@@ -295,22 +295,22 @@ class ModelOptimizer:
                               train_data: torch.utils.data.DataLoader,
                               val_data: torch.utils.data.DataLoader,
                               teacher_model: Optional[nn.Module]) -> Tuple[nn.Module, List[str]]:
-        """Адаптивная оптимизация с выбором лучших техник"""
+        """Adaptive optimization with selection best techniques"""
         
-        # Анализ модели для выбора оптимальной стратегии
+        # Analysis model for selection optimal strategies
         model_analysis = self._analyze_model_characteristics(model)
         
         applied_techniques = []
         current_model = model
         
-        # Принятие решений на основе анализа
+        # Making decisions on basis analysis
         if model_analysis['is_large_model'] and self.config.enable_distillation and teacher_model:
             current_model = self._apply_knowledge_distillation(
                 teacher_model, current_model, train_data, val_data
             )
             applied_techniques.append("adaptive_distillation")
         
-        # Выбираем pruning технику на основе архитектуры
+        # Select pruning technique on basis architectures
         if model_analysis['has_conv_layers'] and self.config.enable_structured_pruning:
             current_model = self.structured_pruner.prune_for_crypto_trading(
                 current_model, train_data, val_data
@@ -322,7 +322,7 @@ class ModelOptimizer:
             )
             applied_techniques.append("adaptive_unstructured_pruning")
         
-        # Quantization если подходящая архитектура
+        # Quantization if suitable architecture
         if model_analysis['supports_quantization'] and self.config.enable_quantization:
             input_shape = self._get_model_input_shape(current_model)
             current_model = self.quantizer.quantize_for_hft(current_model, input_shape)
@@ -335,9 +335,9 @@ class ModelOptimizer:
                                     train_data: torch.utils.data.DataLoader,
                                     val_data: torch.utils.data.DataLoader,
                                     teacher_model: Optional[nn.Module]) -> Tuple[nn.Module, List[str]]:
-        """Многокритериальная оптимизация с Pareto-оптимальными решениями"""
+        """Multi-criteria optimization with Pareto-optimal decisions"""
         
-        # Генерируем различные конфигурации оптимизации
+        # Generate various configuration optimization
         configurations = self._generate_pareto_configurations()
         
         best_models = []
@@ -345,26 +345,26 @@ class ModelOptimizer:
         
         for config in configurations:
             try:
-                # Применяем конфигурацию
+                # Apply configuration
                 temp_model = copy.deepcopy(model)
                 temp_model, techniques = self._apply_configuration(
                     temp_model, config, train_data, val_data, teacher_model
                 )
                 
-                # Оценка по multiple criteria
+                # Estimation by multiple criteria
                 score = self._multi_objective_score(temp_model, val_data, config)
                 
                 best_models.append((temp_model, techniques, score))
                 best_scores.append(score)
                 
             except Exception as e:
-                self.logger.warning(f"Ошибка в конфигурации: {e}")
+                self.logger.warning(f"Error in configuration: {e}")
                 continue
         
         if not best_models:
             return model, []
         
-        # Выбираем лучшую модель
+        # Select best model
         best_idx = np.argmax(best_scores)
         best_model, best_techniques, _ = best_models[best_idx]
         
@@ -375,13 +375,13 @@ class ModelOptimizer:
                                  train_data: torch.utils.data.DataLoader,
                                  val_data: torch.utils.data.DataLoader,
                                  teacher_model: Optional[nn.Module]) -> Tuple[nn.Module, List[str]]:
-        """Эволюционная оптимизация с генетическим алгоритмом"""
+        """Evolutionary optimization with genetic algorithm"""
         
         population_size = 8
         generations = 5
         mutation_rate = 0.3
         
-        # Инициализация популяции
+        # Initialization populations
         population = []
         for _ in range(population_size):
             config = self._mutate_config(copy.deepcopy(self.config), mutation_rate)
@@ -395,22 +395,22 @@ class ModelOptimizer:
             except:
                 continue
         
-        # Эволюционный процесс
+        # Evolutionary process
         for generation in range(generations):
-            # Отбор лучших
+            # Selection best
             population.sort(key=lambda x: x[3], reverse=True)
             survivors = population[:population_size // 2]
             
-            # Создание нового поколения
+            # Creation new generations
             new_population = list(survivors)
             
             while len(new_population) < population_size:
-                # Скрещивание
+                # Crossover
                 parent1, parent2 = np.random.choice(survivors, 2, replace=False)
                 child_config = self._crossover_configs(parent1[2], parent2[2])
                 child_config = self._mutate_config(child_config, mutation_rate)
                 
-                # Создание потомка
+                # Creation child
                 try:
                     child_model = copy.deepcopy(model)
                     child_model, child_techniques = self._apply_configuration(
@@ -426,7 +426,7 @@ class ModelOptimizer:
             best_fitness = max(p[3] for p in population)
             self.logger.info(f"Generation {generation + 1}: best fitness = {best_fitness:.4f}")
         
-        # Возвращаем лучшую модель
+        # Return best model
         best_individual = max(population, key=lambda x: x[3])
         return best_individual[0], ['evolutionary'] + best_individual[1]
     
@@ -435,8 +435,8 @@ class ModelOptimizer:
                              train_data: torch.utils.data.DataLoader,
                              val_data: torch.utils.data.DataLoader,
                              teacher_model: Optional[nn.Module]) -> Tuple[nn.Module, List[str]]:
-        """Параллельная оптимизация (простая версия)"""
-        # В данной реализации применяем все техники одновременно
+        """Parallel optimization (simple version)"""
+        # IN given implementation apply all techniques simultaneously
         return self._sequential_optimization(model, train_data, val_data, teacher_model)
     
     def _apply_knowledge_distillation(self,
@@ -444,7 +444,7 @@ class ModelOptimizer:
                                     student_model: nn.Module,
                                     train_data: torch.utils.data.DataLoader,
                                     val_data: torch.utils.data.DataLoader) -> nn.Module:
-        """Применение knowledge distillation"""
+        """Application knowledge distillation"""
         
         distiller = ResponseDistiller(
             teacher_model=teacher_model,
@@ -460,7 +460,7 @@ class ModelOptimizer:
         )
     
     def _apply_final_optimizations(self, model: nn.Module) -> nn.Module:
-        """Применение финальных оптимизаций"""
+        """Application final optimizations"""
         try:
             # JIT optimization
             if hasattr(torch, 'jit'):
@@ -469,17 +469,17 @@ class ModelOptimizer:
                 optimized_model = torch.jit.optimize_for_inference(traced_model)
                 return optimized_model
         except Exception as e:
-            self.logger.warning(f"JIT оптимизация не удалась: {e}")
+            self.logger.warning(f"JIT optimization not succeeded: {e}")
         
         return model
     
     def _measure_model_performance(self,
                                  model: nn.Module,
                                  val_data: torch.utils.data.DataLoader) -> Dict[str, float]:
-        """Измерение performance метрик модели"""
+        """Measurement performance metrics model"""
         model.eval()
         
-        # Размер модели
+        # Size model
         model_size = self._calculate_model_size_mb(model)
         
         # Latency measurement
@@ -499,7 +499,7 @@ class ModelOptimizer:
         }
     
     def _calculate_model_size_mb(self, model: nn.Module) -> float:
-        """Расчет размера модели в MB"""
+        """Calculation size model in MB"""
         param_size = 0
         for param in model.parameters():
             param_size += param.nelement() * param.element_size()
@@ -509,22 +509,22 @@ class ModelOptimizer:
                         model: nn.Module,
                         val_data: torch.utils.data.DataLoader,
                         num_iterations: int = 100) -> float:
-        """Измерение латентности модели"""
+        """Measurement latency model"""
         model.eval()
         
-        # Получаем пример входа
+        # Retrieve example input
         sample_batch = next(iter(val_data))
         if isinstance(sample_batch, (list, tuple)):
-            sample_input = sample_batch[0][:1]  # Берем один образец
+            sample_input = sample_batch[0][:1]  # Take one sample
         else:
             sample_input = sample_batch[:1]
         
-        # Прогрев
+        # Warmup
         with torch.no_grad():
             for _ in range(10):
                 _ = model(sample_input)
         
-        # Измерение
+        # Measurement
         latencies = []
         with torch.no_grad():
             for _ in range(num_iterations):
@@ -541,7 +541,7 @@ class ModelOptimizer:
                          model: nn.Module,
                          val_data: torch.utils.data.DataLoader,
                          max_batches: int = 50) -> float:
-        """Измерение точности модели"""
+        """Measurement accuracy model"""
         model.eval()
         
         total_loss = 0.0
@@ -561,19 +561,19 @@ class ModelOptimizer:
                 if isinstance(outputs, dict):
                     outputs = outputs.get('trading_signal', outputs)
                 
-                # MSE loss для regression tasks
+                # MSE loss for regression tasks
                 loss = nn.MSELoss()(outputs, targets)
                 total_loss += loss.item() * inputs.size(0)
                 total_samples += inputs.size(0)
         
         avg_loss = total_loss / total_samples if total_samples > 0 else float('inf')
-        # Конвертируем в accuracy-like metric
+        # Convert in accuracy-like metric
         accuracy = max(0.0, 1.0 - avg_loss)
         return accuracy
     
     def _measure_memory_usage(self, model: nn.Module) -> float:
-        """Измерение использования памяти"""
-        # Простая аппроксимация на основе параметров
+        """Measurement usage memory"""
+        # Simple approximation on basis parameters
         param_memory = sum(p.numel() * p.element_size() for p in model.parameters())
         buffer_memory = sum(b.numel() * b.element_size() for b in model.buffers())
         
@@ -581,7 +581,7 @@ class ModelOptimizer:
         return total_memory_mb
     
     def _analyze_model_characteristics(self, model: nn.Module) -> Dict[str, bool]:
-        """Анализ характеристик модели для выбора оптимизаций"""
+        """Analysis characteristics model for selection optimizations"""
         has_conv = False
         has_linear = False
         has_rnn = False
@@ -598,7 +598,7 @@ class ModelOptimizer:
             if hasattr(module, 'weight'):
                 total_params += module.weight.numel()
         
-        is_large = total_params > 1_000_000  # 1M параметров
+        is_large = total_params > 1_000_000  # 1M parameters
         
         return {
             'has_conv_layers': has_conv,
@@ -610,7 +610,7 @@ class ModelOptimizer:
         }
     
     def _get_model_input_shape(self, model: nn.Module) -> Tuple[int, ...]:
-        """Определение размера входа модели"""
+        """Determination size input model"""
         first_layer = next(iter(model.modules()))
         
         if isinstance(first_layer, nn.Linear):
@@ -620,7 +620,7 @@ class ModelOptimizer:
         elif isinstance(first_layer, nn.Conv2d):
             return (first_layer.in_channels, 32, 32)
         else:
-            return (100,)  # Дефолтный размер
+            return (100,)  # Default size
     
     def _create_optimization_result(self,
                                   original_model: nn.Module,
@@ -629,7 +629,7 @@ class ModelOptimizer:
                                   final_metrics: Dict[str, float],
                                   applied_techniques: List[str],
                                   optimization_time: float) -> OptimizationResult:
-        """Создание результата оптимизации"""
+        """Creation result optimization"""
         
         compression_ratio = original_metrics['size_mb'] / final_metrics['size_mb']
         latency_improvement = (original_metrics['latency_ms'] - final_metrics['latency_ms']) / original_metrics['latency_ms'] * 100
@@ -658,10 +658,10 @@ class ModelOptimizer:
         )
     
     def _generate_pareto_configurations(self) -> List[OptimizationConfig]:
-        """Генерация конфигураций для Pareto оптимизации"""
+        """Generation configurations for Pareto optimization"""
         configurations = []
         
-        # Различные комбинации техник
+        # Various combinations techniques
         techniques_combinations = [
             {'quantization': True, 'structured_pruning': False, 'unstructured_pruning': False},
             {'quantization': False, 'structured_pruning': True, 'unstructured_pruning': False},
@@ -684,9 +684,9 @@ class ModelOptimizer:
                            train_data: torch.utils.data.DataLoader,
                            val_data: torch.utils.data.DataLoader,
                            teacher_model: Optional[nn.Module]) -> Tuple[nn.Module, List[str]]:
-        """Применение конкретной конфигурации оптимизации"""
+        """Application specific configuration optimization"""
         
-        # Временно заменяем config
+        # Temporarily replace config
         original_config = self.config
         self.config = config
         self._init_technique_optimizers()
@@ -694,7 +694,7 @@ class ModelOptimizer:
         try:
             result = self._sequential_optimization(model, train_data, val_data, teacher_model)
         finally:
-            # Восстанавливаем исходный config
+            # Restore original config
             self.config = original_config
             self._init_technique_optimizers()
         
@@ -704,15 +704,15 @@ class ModelOptimizer:
                               model: nn.Module,
                               val_data: torch.utils.data.DataLoader,
                               config: OptimizationConfig) -> float:
-        """Многокритериальная оценка модели"""
+        """Multi-criteria estimation model"""
         metrics = self._measure_model_performance(model, val_data)
         
-        # Нормализованные score компоненты
-        size_score = min(1.0, 100.0 / metrics['size_mb'])  # Меньше размер = лучше
-        latency_score = min(1.0, config.latency_target_ms / metrics['latency_ms'])  # Меньше latency = лучше
-        accuracy_score = metrics['accuracy']  # Больше accuracy = лучше
+        # Normalized score components
+        size_score = min(1.0, 100.0 / metrics['size_mb'])  # Less size = better
+        latency_score = min(1.0, config.latency_target_ms / metrics['latency_ms'])  # Less latency = better
+        accuracy_score = metrics['accuracy']  # More accuracy = better
         
-        # Взвешенная комбинация
+        # Weighted combination
         if config.objective == OptimizationObjective.LATENCY:
             return 0.5 * latency_score + 0.3 * accuracy_score + 0.2 * size_score
         elif config.objective == OptimizationObjective.MEMORY:
@@ -723,11 +723,11 @@ class ModelOptimizer:
             return 0.33 * accuracy_score + 0.33 * latency_score + 0.34 * size_score
     
     def _calculate_fitness(self, model: nn.Module, val_data: torch.utils.data.DataLoader) -> float:
-        """Вычисление fitness для эволюционного алгоритма"""
+        """Computation fitness for evolutionary algorithm"""
         return self._multi_objective_score(model, val_data, self.config)
     
     def _mutate_config(self, config: OptimizationConfig, mutation_rate: float) -> OptimizationConfig:
-        """Мутация конфигурации для генетического алгоритма"""
+        """Mutation configuration for genetic algorithm"""
         if np.random.random() < mutation_rate:
             config.enable_quantization = not config.enable_quantization
         
@@ -740,10 +740,10 @@ class ModelOptimizer:
         return config
     
     def _crossover_configs(self, config1: OptimizationConfig, config2: OptimizationConfig) -> OptimizationConfig:
-        """Скрещивание конфигураций"""
+        """Crossover configurations"""
         child_config = copy.deepcopy(config1)
         
-        # Случайно выбираем признаки от родителей
+        # Randomly select features from parents
         if np.random.random() < 0.5:
             child_config.enable_quantization = config2.enable_quantization
         
@@ -756,29 +756,29 @@ class ModelOptimizer:
         return child_config
     
     def save_optimization_history(self, filepath: Union[str, Path]) -> None:
-        """Сохранение истории оптимизации"""
+        """Saving history optimization"""
         filepath = Path(filepath)
         filepath.parent.mkdir(parents=True, exist_ok=True)
         
         with open(filepath, 'w') as f:
             json.dump(self.optimization_history, f, indent=2, default=str)
         
-        self.logger.info(f"История оптимизации сохранена в {filepath}")
+        self.logger.info(f"History optimization saved in {filepath}")
     
     def load_optimization_history(self, filepath: Union[str, Path]) -> None:
-        """Загрузка истории оптимизации"""
+        """Loading history optimization"""
         filepath = Path(filepath)
         
         if filepath.exists():
             with open(filepath, 'r') as f:
                 self.optimization_history = json.load(f)
             
-            self.logger.info(f"История оптимизации загружена из {filepath}")
+            self.logger.info(f"History optimization loaded from {filepath}")
         else:
-            self.logger.warning(f"Файл истории не найден: {filepath}")
+            self.logger.warning(f"File history not found: {filepath}")
     
     def get_optimization_recommendations(self, model: nn.Module) -> Dict[str, Any]:
-        """Получение рекомендаций по оптимизации модели"""
+        """Retrieval recommendations by optimization model"""
         analysis = self._analyze_model_characteristics(model)
         
         recommendations = {
@@ -788,7 +788,7 @@ class ModelOptimizer:
             'risk_factors': []
         }
         
-        # Рекомендации на основе анализа
+        # Recommendations on basis analysis
         if analysis['is_large_model']:
             recommendations['recommended_techniques'].append('knowledge_distillation')
             recommendations['expected_benefits']['compression'] = 'high'
@@ -801,7 +801,7 @@ class ModelOptimizer:
             recommendations['recommended_techniques'].append('quantization')
             recommendations['expected_benefits']['memory_reduction'] = 'medium'
         
-        # Факторы риска
+        # Factors risk
         if analysis['has_rnn_layers']:
             recommendations['risk_factors'].append('RNN layers may be sensitive to aggressive compression')
         

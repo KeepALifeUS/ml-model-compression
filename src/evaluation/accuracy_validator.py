@@ -1,8 +1,8 @@
 """
-Модуль валидации точности сжатых ML-моделей для криптотрейдинга.
-Специализированные метрики и тесты для финансовых временных рядов.
+Module validation accuracy compressed ML-models for crypto trading.
+Specialized metrics and tests for financial temporal series.
 
-Domain-specific validation patterns для financial ML systems
+Domain-specific validation patterns for financial ML systems
 """
 
 from typing import Dict, Any, Optional, List, Tuple, Union, Callable
@@ -22,7 +22,7 @@ from pathlib import Path
 logger = logging.getLogger(__name__)
 
 class ValidationMetric(Enum):
-    """Типы метрик валидации"""
+    """Types metrics validation"""
     MSE = "mse"
     MAE = "mae"
     RMSE = "rmse"
@@ -39,15 +39,15 @@ class ValidationMetric(Enum):
     VOLATILITY_RATIO = "volatility_ratio"
 
 class ValidationLevel(Enum):
-    """Уровни валидации"""
-    BASIC = "basic"              # Базовые метрики
-    TRADING = "trading"          # Торговые метрики
-    RISK = "risk"               # Risk management метрики
-    COMPREHENSIVE = "comprehensive"  # Полная валидация
+    """Levels validation"""
+    BASIC = "basic"              # Base metrics
+    TRADING = "trading"          # Trading metrics
+    RISK = "risk"               # Risk management metrics
+    COMPREHENSIVE = "comprehensive"  # Full validation
 
 @dataclass
 class ValidationThresholds:
-    """Пороги для валидации"""
+    """Thresholds for validation"""
     min_accuracy_retention: float = 0.95
     max_mse_increase: float = 0.1
     min_directional_accuracy: float = 0.52
@@ -58,27 +58,27 @@ class ValidationThresholds:
 
 @dataclass
 class ValidationResult:
-    """Результат валидации модели"""
+    """Result validation model"""
     model_name: str
     validation_level: ValidationLevel
     overall_passed: bool
     
-    # Метрики
+    # Metrics
     metrics: Dict[str, float]
     
-    # Результаты тестов
+    # Results tests
     test_results: Dict[str, bool]
     
-    # Детальная информация
+    # Detailed information
     failed_tests: List[str]
     warnings: List[str]
     recommendations: List[str]
     
-    # Статистическая значимость
+    # Statistical significance
     statistical_significance: Dict[str, float]
     
     def to_dict(self) -> Dict[str, Any]:
-        """Конвертация в словарь"""
+        """Conversion in dictionary"""
         return {
             'model_name': self.model_name,
             'validation_level': self.validation_level.value,
@@ -93,8 +93,8 @@ class ValidationResult:
 
 class AccuracyValidator:
     """
-    Специализированный валидатор точности для crypto trading моделей
-    с focus на financial metrics и statistical significance
+    Specialized validator accuracy for crypto trading models
+    with focus on financial metrics and statistical significance
     """
     
     def __init__(self, 
@@ -102,8 +102,8 @@ class AccuracyValidator:
                  confidence_level: float = 0.95):
         """
         Args:
-            thresholds: Пороги валидации
-            confidence_level: Уровень доверительного интервала
+            thresholds: Thresholds validation
+            confidence_level: Level confidence interval
         """
         self.thresholds = thresholds or ValidationThresholds()
         self.confidence_level = confidence_level
@@ -118,21 +118,21 @@ class AccuracyValidator:
                                validation_level: ValidationLevel = ValidationLevel.COMPREHENSIVE,
                                model_name: str = "compressed_model") -> ValidationResult:
         """
-        Полная валидация точности сжатой модели
+        Full validation accuracy compressed model
         
         Args:
-            original_model: Исходная модель
-            compressed_model: Сжатая модель
-            test_data: Тестовые данные
-            validation_level: Уровень валидации
-            model_name: Имя модели для отчетов
+            original_model: Original model
+            compressed_model: Compressed model
+            test_data: Test data
+            validation_level: Level validation
+            model_name: Name model for reports
             
         Returns:
-            Результат валидации
+            Result validation
         """
-        self.logger.info(f"Начинаем валидацию модели {model_name} на уровне {validation_level.value}")
+        self.logger.info(f"Begin validation model {model_name} on level {validation_level.value}")
         
-        # Получаем предсказания
+        # Retrieve predictions
         original_predictions, compressed_predictions, targets = self._get_model_predictions(
             original_model, compressed_model, test_data
         )
@@ -150,22 +150,22 @@ class AccuracyValidator:
                 statistical_significance={}
             )
         
-        # Вычисляем метрики
+        # Compute metrics
         metrics = self._calculate_validation_metrics(
             original_predictions, compressed_predictions, targets, validation_level
         )
         
-        # Выполняем тесты
+        # Execute tests
         test_results = self._run_validation_tests(
             original_predictions, compressed_predictions, targets, metrics, validation_level
         )
         
-        # Статистическая значимость
+        # Statistical significance
         significance_tests = self._run_statistical_significance_tests(
             original_predictions, compressed_predictions, targets
         )
         
-        # Анализ результатов
+        # Analysis results
         overall_passed = all(test_results.values())
         failed_tests = [test for test, passed in test_results.items() if not passed]
         warnings = self._generate_warnings(metrics, test_results)
@@ -183,12 +183,12 @@ class AccuracyValidator:
             statistical_significance=significance_tests
         )
         
-        # Сохраняем в историю
+        # Save in history
         self.validation_history.append(result)
         
-        self.logger.info(f"Валидация завершена. Результат: {'PASSED' if overall_passed else 'FAILED'}")
+        self.logger.info(f"Validation completed. Result: {'PASSED' if overall_passed else 'FAILED'}")
         if failed_tests:
-            self.logger.warning(f"Неудавшиеся тесты: {failed_tests}")
+            self.logger.warning(f"Failed tests: {failed_tests}")
         
         return result
     
@@ -196,7 +196,7 @@ class AccuracyValidator:
                               original_model: nn.Module,
                               compressed_model: nn.Module,
                               test_data: torch.utils.data.DataLoader) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-        """Получение предсказаний обеих моделей"""
+        """Retrieval predictions both models"""
         
         original_model.eval()
         compressed_model.eval()
@@ -209,7 +209,7 @@ class AccuracyValidator:
         
         with torch.no_grad():
             for i, batch in enumerate(test_data):
-                if i >= 200:  # Ограничиваем для скорости
+                if i >= 200:  # Limit for speed
                     break
                 
                 if isinstance(batch, (list, tuple)) and len(batch) == 2:
@@ -220,13 +220,13 @@ class AccuracyValidator:
                     inputs = batch.to(device)
                     batch_targets = inputs  # Self-prediction task
                 
-                # Предсказания оригинальной модели
+                # Predictions original model
                 orig_output = original_model(inputs)
                 if isinstance(orig_output, dict):
                     orig_output = orig_output.get('trading_signal', orig_output)
                 original_predictions.append(orig_output.cpu().numpy())
                 
-                # Предсказания сжатой модели
+                # Predictions compressed model
                 comp_output = compressed_model(inputs)
                 if isinstance(comp_output, dict):
                     comp_output = comp_output.get('trading_signal', comp_output)
@@ -238,12 +238,12 @@ class AccuracyValidator:
         if not original_predictions:
             return np.array([]), np.array([]), np.array([])
         
-        # Объединяем предсказания
+        # Merge predictions
         original_pred = np.concatenate(original_predictions, axis=0)
         compressed_pred = np.concatenate(compressed_predictions, axis=0)
         targets_array = np.concatenate(targets, axis=0)
         
-        # Flatten если нужно
+        # Flatten if needed
         if original_pred.ndim > 1:
             original_pred = original_pred.flatten()
         if compressed_pred.ndim > 1:
@@ -251,7 +251,7 @@ class AccuracyValidator:
         if targets_array.ndim > 1:
             targets_array = targets_array.flatten()
         
-        self.logger.info(f"Получены предсказания: {len(original_pred)} образцов")
+        self.logger.info(f"Obtained predictions: {len(original_pred)} samples")
         
         return original_pred, compressed_pred, targets_array
     
@@ -260,22 +260,22 @@ class AccuracyValidator:
                                     compressed_predictions: np.ndarray,
                                     targets: np.ndarray,
                                     validation_level: ValidationLevel) -> Dict[str, float]:
-        """Вычисление метрик валидации"""
+        """Computation metrics validation"""
         
         metrics = {}
         
-        # Базовые метрики (всегда вычисляем)
+        # Base metrics (always compute)
         metrics.update(self._calculate_basic_metrics(
             original_predictions, compressed_predictions, targets
         ))
         
-        # Торговые метрики
+        # Trading metrics
         if validation_level in [ValidationLevel.TRADING, ValidationLevel.COMPREHENSIVE]:
             metrics.update(self._calculate_trading_metrics(
                 original_predictions, compressed_predictions, targets
             ))
         
-        # Risk метрики
+        # Risk metrics
         if validation_level in [ValidationLevel.RISK, ValidationLevel.COMPREHENSIVE]:
             metrics.update(self._calculate_risk_metrics(
                 original_predictions, compressed_predictions, targets
@@ -287,15 +287,15 @@ class AccuracyValidator:
                                original_predictions: np.ndarray,
                                compressed_predictions: np.ndarray,
                                targets: np.ndarray) -> Dict[str, float]:
-        """Базовые метрики точности"""
+        """Base metrics accuracy"""
         
         metrics = {}
         
-        # MSE между оригинальными и сжатыми предсказаниями
+        # MSE between original and compressed predictions
         prediction_mse = mean_squared_error(original_predictions, compressed_predictions)
         metrics['prediction_mse'] = float(prediction_mse)
         
-        # MSE относительно targets
+        # MSE relatively targets
         original_mse = mean_squared_error(targets, original_predictions)
         compressed_mse = mean_squared_error(targets, compressed_predictions)
         
@@ -328,16 +328,16 @@ class AccuracyValidator:
             metrics['compressed_r2'] = 0.0
             metrics['r2_difference'] = 0.0
         
-        # Корреляция между предсказаниями
+        # Correlation between predictions
         correlation = np.corrcoef(original_predictions, compressed_predictions)[0, 1]
         if np.isnan(correlation):
             correlation = 0.0
         metrics['predictions_correlation'] = float(correlation)
         
-        # Accuracy retention (на основе MSE)
+        # Accuracy retention (on basis MSE)
         accuracy_retention = original_mse / (compressed_mse + 1e-8)
         if accuracy_retention > 1.0:
-            accuracy_retention = 2.0 - accuracy_retention  # Инвертируем если сжатая лучше
+            accuracy_retention = 2.0 - accuracy_retention  # Invert if compressed better
         metrics['accuracy_retention'] = float(min(1.0, accuracy_retention))
         
         return metrics
@@ -346,7 +346,7 @@ class AccuracyValidator:
                                  original_predictions: np.ndarray,
                                  compressed_predictions: np.ndarray,
                                  targets: np.ndarray) -> Dict[str, float]:
-        """Торговые метрики"""
+        """Trading metrics"""
         
         metrics = {}
         
@@ -356,35 +356,35 @@ class AccuracyValidator:
             comp_directions = np.sign(np.diff(compressed_predictions))
             target_directions = np.sign(np.diff(targets))
             
-            # Directional accuracy для оригинальной модели
+            # Directional accuracy for original model
             orig_dir_acc = np.mean(orig_directions == target_directions)
             metrics['original_directional_accuracy'] = float(orig_dir_acc)
             
-            # Directional accuracy для сжатой модели
+            # Directional accuracy for compressed model
             comp_dir_acc = np.mean(comp_directions == target_directions)
             metrics['compressed_directional_accuracy'] = float(comp_dir_acc)
             
-            # Сохранение directional accuracy
+            # Saving directional accuracy
             metrics['directional_accuracy_retention'] = float(comp_dir_acc / (orig_dir_acc + 1e-8))
         
-        # Sharpe Ratio (упрощенный)
+        # Sharpe Ratio (simplified)
         if len(original_predictions) > 1:
             orig_returns = np.diff(original_predictions)
             comp_returns = np.diff(compressed_predictions)
             target_returns = np.diff(targets)
             
-            # Sharpe ratio для оригинальных предсказаний
+            # Sharpe ratio for original predictions
             orig_sharpe = np.mean(orig_returns) / (np.std(orig_returns) + 1e-8)
             metrics['original_sharpe_ratio'] = float(orig_sharpe)
             
-            # Sharpe ratio для сжатых предсказаний
+            # Sharpe ratio for compressed predictions
             comp_sharpe = np.mean(comp_returns) / (np.std(comp_returns) + 1e-8)
             metrics['compressed_sharpe_ratio'] = float(comp_sharpe)
             
             # Sharpe retention
             metrics['sharpe_retention'] = float(comp_sharpe / (orig_sharpe + 1e-8))
         
-        # Hit ratio (процент правильных направлений)
+        # Hit ratio (percent correct directions)
         if len(original_predictions) > 1:
             orig_hits = np.mean((orig_directions * target_directions) > 0)
             comp_hits = np.mean((comp_directions * target_directions) > 0)
@@ -398,7 +398,7 @@ class AccuracyValidator:
                               original_predictions: np.ndarray,
                               compressed_predictions: np.ndarray,
                               targets: np.ndarray) -> Dict[str, float]:
-        """Risk management метрики"""
+        """Risk management metrics"""
         
         metrics = {}
         
@@ -428,7 +428,7 @@ class AccuracyValidator:
         metrics['original_cvar_95'] = float(orig_cvar_95)
         metrics['compressed_cvar_95'] = float(comp_cvar_95)
         
-        # Maximum Drawdown (упрощенная версия)
+        # Maximum Drawdown (simplified version)
         if len(original_predictions) > 1:
             orig_cumulative = np.cumsum(original_predictions)
             comp_cumulative = np.cumsum(compressed_predictions)
@@ -466,48 +466,48 @@ class AccuracyValidator:
                             targets: np.ndarray,
                             metrics: Dict[str, float],
                             validation_level: ValidationLevel) -> Dict[str, bool]:
-        """Выполнение валидационных тестов"""
+        """Execution validation tests"""
         
         tests = {}
         
-        # Базовые тесты
+        # Base tests
         tests.update(self._run_basic_tests(metrics))
         
-        # Торговые тесты
+        # Trading tests
         if validation_level in [ValidationLevel.TRADING, ValidationLevel.COMPREHENSIVE]:
             tests.update(self._run_trading_tests(metrics))
         
-        # Risk тесты
+        # Risk tests
         if validation_level in [ValidationLevel.RISK, ValidationLevel.COMPREHENSIVE]:
             tests.update(self._run_risk_tests(metrics))
         
         return tests
     
     def _run_basic_tests(self, metrics: Dict[str, float]) -> Dict[str, bool]:
-        """Базовые тесты валидации"""
+        """Base tests validation"""
         
         tests = {}
         
-        # Тест accuracy retention
+        # Test accuracy retention
         accuracy_retention = metrics.get('accuracy_retention', 0.0)
         tests['accuracy_retention_test'] = accuracy_retention >= self.thresholds.min_accuracy_retention
         
-        # Тест MSE increase
+        # Test MSE increase
         mse_ratio = metrics.get('mse_ratio', float('inf'))
         tests['mse_increase_test'] = (mse_ratio - 1.0) <= self.thresholds.max_mse_increase
         
-        # Тест корреляции предсказаний
+        # Test correlation predictions
         correlation = metrics.get('predictions_correlation', 0.0)
         tests['predictions_correlation_test'] = correlation >= self.thresholds.min_correlation
         
-        # Тест R² сохранения
+        # Test R² saving
         r2_diff = metrics.get('r2_difference', -float('inf'))
-        tests['r2_preservation_test'] = r2_diff >= -0.05  # Не более 5% ухудшения
+        tests['r2_preservation_test'] = r2_diff >= -0.05  # Not more 5% deterioration
         
         return tests
     
     def _run_trading_tests(self, metrics: Dict[str, float]) -> Dict[str, bool]:
-        """Торговые тесты валидации"""
+        """Trading tests validation"""
         
         tests = {}
         
@@ -534,7 +534,7 @@ class AccuracyValidator:
         return tests
     
     def _run_risk_tests(self, metrics: Dict[str, float]) -> Dict[str, bool]:
-        """Risk management тесты"""
+        """Risk management tests"""
         
         tests = {}
         
@@ -551,7 +551,7 @@ class AccuracyValidator:
         orig_var = metrics.get('original_var_95', 0.0)
         comp_var = metrics.get('compressed_var_95', 0.0)
         var_diff = abs(comp_var - orig_var) / (abs(orig_var) + 1e-8)
-        tests['var_consistency_test'] = var_diff <= 0.2  # Не более 20% изменения
+        tests['var_consistency_test'] = var_diff <= 0.2  # Not more 20% changes
         
         return tests
     
@@ -559,11 +559,11 @@ class AccuracyValidator:
                                           original_predictions: np.ndarray,
                                           compressed_predictions: np.ndarray,
                                           targets: np.ndarray) -> Dict[str, float]:
-        """Тесты статистической значимости"""
+        """Tests statistical significance"""
         
         significance = {}
         
-        # Paired t-test для ошибок
+        # Paired t-test for errors
         orig_errors = np.abs(targets - original_predictions)
         comp_errors = np.abs(targets - compressed_predictions)
         
@@ -575,7 +575,7 @@ class AccuracyValidator:
             significance['error_difference_p_value'] = 1.0
             significance['error_difference_significant'] = False
         
-        # Kolmogorov-Smirnov test для распределений
+        # Kolmogorov-Smirnov test for distributions
         try:
             ks_stat, ks_p_value = stats.ks_2samp(original_predictions, compressed_predictions)
             significance['distribution_ks_p_value'] = float(ks_p_value)
@@ -598,35 +598,35 @@ class AccuracyValidator:
     def _generate_warnings(self,
                           metrics: Dict[str, float],
                           test_results: Dict[str, bool]) -> List[str]:
-        """Генерация предупреждений"""
+        """Generation warnings"""
         
         warnings = []
         
-        # Предупреждения на основе метрик
+        # Warnings on basis metrics
         accuracy_retention = metrics.get('accuracy_retention', 1.0)
         if accuracy_retention < 0.98:
-            warnings.append(f"Снижение точности: {(1-accuracy_retention)*100:.1f}%")
+            warnings.append(f"Reduction accuracy: {(1-accuracy_retention)*100:.1f}%")
         
         correlation = metrics.get('predictions_correlation', 1.0)
         if correlation < 0.95:
-            warnings.append(f"Низкая корреляция предсказаний: {correlation:.3f}")
+            warnings.append(f"Low correlation predictions: {correlation:.3f}")
         
         dir_acc = metrics.get('compressed_directional_accuracy', 0.0)
         if dir_acc < 0.55:
-            warnings.append(f"Низкая directional accuracy: {dir_acc:.3f}")
+            warnings.append(f"Low directional accuracy: {dir_acc:.3f}")
         
         vol_ratio = metrics.get('volatility_ratio', 1.0)
         if abs(vol_ratio - 1.0) > 0.15:
-            warnings.append(f"Значительное изменение волатильности: {(vol_ratio-1)*100:.1f}%")
+            warnings.append(f"Significant change volatility: {(vol_ratio-1)*100:.1f}%")
         
-        # Предупреждения на основе неудавших тестов
+        # Warnings on basis failed tests
         failed_critical_tests = [
             test for test in ['accuracy_retention_test', 'predictions_correlation_test']
             if not test_results.get(test, True)
         ]
         
         if failed_critical_tests:
-            warnings.append("Критические тесты не прошли валидацию")
+            warnings.append("Critical tests not passed validation")
         
         return warnings
     
@@ -634,48 +634,48 @@ class AccuracyValidator:
                                 metrics: Dict[str, float],
                                 test_results: Dict[str, bool],
                                 failed_tests: List[str]) -> List[str]:
-        """Генерация рекомендаций"""
+        """Generation recommendations"""
         
         recommendations = []
         
         if not failed_tests:
-            recommendations.append("Все тесты пройдены успешно. Модель готова к использованию.")
+            recommendations.append("All tests passed successfully. Model ready to usage.")
             return recommendations
         
-        # Рекомендации на основе неудавших тестов
+        # Recommendations on basis failed tests
         if 'accuracy_retention_test' in failed_tests:
-            recommendations.append("Точность значительно снизилась. Рассмотрите менее агрессивное сжатие или fine-tuning.")
+            recommendations.append("Accuracy significantly decreased. Consider less aggressive compression or fine-tuning.")
         
         if 'predictions_correlation_test' in failed_tests:
-            recommendations.append("Низкая корреляция предсказаний. Проверьте корректность сжатия или используйте knowledge distillation.")
+            recommendations.append("Low correlation predictions. Check correctness compression or use knowledge distillation.")
         
         if 'directional_accuracy_test' in failed_tests:
-            recommendations.append("Низкая directional accuracy. Важно для торговых стратегий - рассмотрите специализированное обучение.")
+            recommendations.append("Low directional accuracy. Important for trading strategies - consider specialized training.")
         
         if 'sharpe_ratio_test' in failed_tests:
-            recommendations.append("Низкий Sharpe ratio. Модель может быть менее прибыльной в торговле.")
+            recommendations.append("Low Sharpe ratio. Model can be less profitable in trading.")
         
         if 'volatility_preservation_test' in failed_tests:
-            recommendations.append("Значительное изменение волатильности. Может повлиять на risk management.")
+            recommendations.append("Significant change volatility. Can affect on risk management.")
         
         if 'max_drawdown_test' in failed_tests:
-            recommendations.append("Высокий максимальный drawdown. Повышенный риск для торговых стратегий.")
+            recommendations.append("High maximum drawdown. Elevated risk for trading strategies.")
         
-        # Общие рекомендации
+        # General recommendations
         if len(failed_tests) > 3:
-            recommendations.append("Множественные сбои тестов. Рекомендуется пересмотреть стратегию сжатия.")
+            recommendations.append("Multiple failures tests. Is recommended reconsider strategy compression.")
         
-        # Рекомендации на основе метрик
+        # Recommendations on basis metrics
         mse_ratio = metrics.get('mse_ratio', 1.0)
         if mse_ratio > 1.2:
-            recommendations.append("Значительное увеличение MSE. Попробуйте knowledge distillation или менее агрессивную pruning.")
+            recommendations.append("Significant increase MSE. Try knowledge distillation or less aggressive pruning.")
         
         return recommendations
     
     def create_validation_report(self,
                                validation_result: ValidationResult,
                                save_path: Optional[Path] = None) -> Dict[str, Any]:
-        """Создание детального отчета валидации"""
+        """Creation detailed report validation"""
         
         report = {
             'summary': validation_result.to_dict(),
@@ -690,14 +690,14 @@ class AccuracyValidator:
         return report
     
     def _create_detailed_analysis(self, result: ValidationResult) -> Dict[str, Any]:
-        """Создание детального анализа"""
+        """Creation detailed analysis"""
         
         analysis = {}
         
-        # Анализ по категориям метрик
+        # Analysis by categories metrics
         metrics = result.metrics
         
-        # Базовые метрики
+        # Base metrics
         basic_metrics = {k: v for k, v in metrics.items() 
                         if k in ['accuracy_retention', 'predictions_correlation', 'mse_ratio', 'mae_ratio']}
         analysis['basic_metrics_analysis'] = {
@@ -705,7 +705,7 @@ class AccuracyValidator:
             'interpretation': self._interpret_basic_metrics(basic_metrics)
         }
         
-        # Торговые метрики
+        # Trading metrics
         trading_metrics = {k: v for k, v in metrics.items() 
                           if 'directional' in k or 'sharpe' in k or 'hit' in k}
         if trading_metrics:
@@ -714,7 +714,7 @@ class AccuracyValidator:
                 'interpretation': self._interpret_trading_metrics(trading_metrics)
             }
         
-        # Risk метрики
+        # Risk metrics
         risk_metrics = {k: v for k, v in metrics.items() 
                        if 'volatility' in k or 'drawdown' in k or 'var' in k}
         if risk_metrics:
@@ -726,79 +726,79 @@ class AccuracyValidator:
         return analysis
     
     def _interpret_basic_metrics(self, metrics: Dict[str, float]) -> List[str]:
-        """Интерпретация базовых метрик"""
+        """Interpretation base metrics"""
         
         interpretations = []
         
         accuracy_retention = metrics.get('accuracy_retention', 1.0)
         if accuracy_retention > 0.98:
-            interpretations.append("Отличное сохранение точности")
+            interpretations.append("Excellent saving accuracy")
         elif accuracy_retention > 0.95:
-            interpretations.append("Хорошее сохранение точности")
+            interpretations.append("Good saving accuracy")
         else:
-            interpretations.append("Значительная потеря точности")
+            interpretations.append("Significant loss accuracy")
         
         correlation = metrics.get('predictions_correlation', 1.0)
         if correlation > 0.95:
-            interpretations.append("Высокая корреляция предсказаний")
+            interpretations.append("High correlation predictions")
         elif correlation > 0.9:
-            interpretations.append("Умеренная корреляция предсказаний")
+            interpretations.append("Moderate correlation predictions")
         else:
-            interpretations.append("Низкая корреляция предсказаний - возможны проблемы с моделью")
+            interpretations.append("Low correlation predictions - possible problems with model")
         
         return interpretations
     
     def _interpret_trading_metrics(self, metrics: Dict[str, float]) -> List[str]:
-        """Интерпретация торговых метрик"""
+        """Interpretation trading metrics"""
         
         interpretations = []
         
         dir_acc = metrics.get('compressed_directional_accuracy', 0.0)
         if dir_acc > 0.6:
-            interpretations.append("Высокая directional accuracy - подходит для торговых стратегий")
+            interpretations.append("High directional accuracy - suitable for trading strategies")
         elif dir_acc > 0.52:
-            interpretations.append("Умеренная directional accuracy")
+            interpretations.append("Moderate directional accuracy")
         else:
-            interpretations.append("Низкая directional accuracy - не рекомендуется для торговли")
+            interpretations.append("Low directional accuracy - not is recommended for trading")
         
         sharpe = metrics.get('compressed_sharpe_ratio', 0.0)
         if sharpe > 1.0:
-            interpretations.append("Отличный Sharpe ratio")
+            interpretations.append("Excellent Sharpe ratio")
         elif sharpe > 0.5:
-            interpretations.append("Приемлемый Sharpe ratio")
+            interpretations.append("Acceptable Sharpe ratio")
         else:
-            interpretations.append("Низкий Sharpe ratio")
+            interpretations.append("Low Sharpe ratio")
         
         return interpretations
     
     def _interpret_risk_metrics(self, metrics: Dict[str, float]) -> List[str]:
-        """Интерпретация risk метрик"""
+        """Interpretation risk metrics"""
         
         interpretations = []
         
         vol_ratio = metrics.get('volatility_ratio', 1.0)
         vol_change = abs(vol_ratio - 1.0)
         if vol_change < 0.05:
-            interpretations.append("Волатильность хорошо сохранена")
+            interpretations.append("Volatility well saved")
         elif vol_change < 0.15:
-            interpretations.append("Умеренное изменение волатильности")
+            interpretations.append("Moderate change volatility")
         else:
-            interpretations.append("Значительное изменение волатильности")
+            interpretations.append("Significant change volatility")
         
         max_drawdown = metrics.get('compressed_max_drawdown', 0.0)
         if max_drawdown < 0.05:
-            interpretations.append("Низкий максимальный drawdown")
+            interpretations.append("Low maximum drawdown")
         elif max_drawdown < 0.15:
-            interpretations.append("Умеренный максимальный drawdown")
+            interpretations.append("Moderate maximum drawdown")
         else:
-            interpretations.append("Высокий максимальный drawdown - повышенный риск")
+            interpretations.append("High maximum drawdown - elevated risk")
         
         return interpretations
     
     def _create_visualizations(self, result: ValidationResult) -> Dict[str, str]:
-        """Создание визуализаций (paths к файлам)"""
+        """Creation visualizations (paths to files)"""
         
-        # В реальной реализации здесь были бы графики
+        # IN real implementation here were would charts
         visualizations = {
             'metrics_comparison': 'path/to/metrics_comparison.png',
             'correlation_plot': 'path/to/correlation_plot.png',
@@ -808,13 +808,13 @@ class AccuracyValidator:
         return visualizations
     
     def _create_comparison_table(self, result: ValidationResult) -> Dict[str, Any]:
-        """Создание таблицы сравнения"""
+        """Creation table comparison"""
         
         metrics = result.metrics
         
         comparison_data = []
         
-        # Основные метрики для сравнения
+        # Main metrics for comparison
         key_metrics = [
             ('MSE', 'original_mse', 'compressed_mse'),
             ('MAE', 'original_mae', 'compressed_mae'),
@@ -847,7 +847,7 @@ class AccuracyValidator:
         }
     
     def _save_report(self, report: Dict[str, Any], save_path: Path) -> None:
-        """Сохранение отчета"""
+        """Saving report"""
         
         save_path.parent.mkdir(parents=True, exist_ok=True)
         
@@ -855,10 +855,10 @@ class AccuracyValidator:
         with open(save_path, 'w') as f:
             json.dump(report, f, indent=2, default=str)
         
-        self.logger.info(f"Отчет валидации сохранен: {save_path}")
+        self.logger.info(f"Report validation saved: {save_path}")
     
     def get_validation_summary(self, last_n: int = 5) -> Dict[str, Any]:
-        """Получение summary последних валидаций"""
+        """Retrieval summary recent validations"""
         
         recent_validations = self.validation_history[-last_n:] if self.validation_history else []
         
@@ -876,7 +876,7 @@ class AccuracyValidator:
         return summary
     
     def _analyze_common_failures(self, validations: List[ValidationResult]) -> Dict[str, int]:
-        """Анализ частых неудач тестов"""
+        """Analysis frequent failures tests"""
         
         failure_counts = {}
         
@@ -887,7 +887,7 @@ class AccuracyValidator:
         return failure_counts
     
     def _calculate_average_metrics(self, validations: List[ValidationResult]) -> Dict[str, float]:
-        """Расчет средних метрик"""
+        """Calculation average metrics"""
         
         if not validations:
             return {}

@@ -1,8 +1,8 @@
 """
-Модуль анализа ML-моделей для определения оптимальных стратегий сжатия.
-Автоматический выбор техник compression на основе архитектуры модели.
+Module analysis ML-models for determination optimal strategies compression.
+Automatic selection techniques compression on basis architectures model.
 
-Intelligent model analysis patterns для automated optimization
+Intelligent model analysis patterns for automated optimization
 """
 
 from typing import Dict, Any, Optional, List, Tuple, Union
@@ -18,7 +18,7 @@ import math
 logger = logging.getLogger(__name__)
 
 class ModelType(Enum):
-    """Типы моделей для анализа"""
+    """Types models for analysis"""
     FEEDFORWARD = "feedforward"
     CONVOLUTIONAL = "convolutional"
     RECURRENT = "recurrent"
@@ -27,7 +27,7 @@ class ModelType(Enum):
     CUSTOM = "custom"
 
 class CompressionTechnique(Enum):
-    """Техники сжатия"""
+    """Techniques compression"""
     QUANTIZATION = "quantization"
     STRUCTURED_PRUNING = "structured_pruning"
     UNSTRUCTURED_PRUNING = "unstructured_pruning"
@@ -35,14 +35,14 @@ class CompressionTechnique(Enum):
     LOW_RANK_APPROXIMATION = "low_rank_approximation"
 
 class AnalysisLevel(Enum):
-    """Уровни анализа модели"""
-    BASIC = "basic"              # Базовые характеристики
-    DETAILED = "detailed"       # Детальный анализ слоев
-    COMPREHENSIVE = "comprehensive"  # Полный анализ с рекомендациями
+    """Levels analysis model"""
+    BASIC = "basic"              # Base characteristics
+    DETAILED = "detailed"       # Detailed analysis layers
+    COMPREHENSIVE = "comprehensive"  # Full analysis with recommendations
 
 @dataclass
 class LayerAnalysis:
-    """Анализ отдельного слоя"""
+    """Analysis individual layer"""
     name: str
     layer_type: str
     parameters: int
@@ -56,31 +56,31 @@ class LayerAnalysis:
 
 @dataclass
 class ModelAnalysisResult:
-    """Результат анализа модели"""
+    """Result analysis model"""
     model_type: ModelType
     total_parameters: int
     total_memory_mb: float
     total_flops: int
     
-    # Структурные характеристики
+    # Structural characteristics
     num_linear_layers: int
     num_conv_layers: int
     num_rnn_layers: int
     num_attention_layers: int
     
-    # Анализ по слоям
+    # Analysis by layers
     layer_analyses: List[LayerAnalysis]
     bottleneck_layers: List[str]
     
-    # Потенциал сжатия
+    # Potential compression
     compression_potential: Dict[str, float]  # technique -> potential score
     
-    # Рекомендации
+    # Recommendations
     recommended_techniques: List[str]
     compression_strategy: str
     expected_compression_ratio: float
     
-    # Риски и ограничения
+    # Risks and limitations
     compression_risks: List[str]
     accuracy_impact_estimate: float
     
@@ -91,22 +91,22 @@ class ModelAnalysisResult:
 
 class ModelAnalyzer:
     """
-    Интеллектуальный анализатор моделей для определения оптимальных
-    стратегий сжатия с учетом специфики crypto trading
+    Intelligent analyzer models for determination optimal
+    strategies compression with considering specifics crypto trading
     """
     
     def __init__(self, crypto_domain_focus: bool = True):
         """
         Args:
-            crypto_domain_focus: Фокус на crypto trading специфике
+            crypto_domain_focus: Focus on crypto trading specifics
         """
         self.crypto_domain_focus = crypto_domain_focus
         self.logger = logging.getLogger(f"{__name__}.ModelAnalyzer")
         
-        # Веса для различных техник сжатия
+        # Weights for various techniques compression
         self.technique_weights = self._initialize_technique_weights()
         
-        # Patterns для распознавания архитектур
+        # Patterns for recognition architectures
         self.architecture_patterns = self._initialize_architecture_patterns()
     
     def analyze_model(self, 
@@ -114,43 +114,43 @@ class ModelAnalyzer:
                      sample_input: Optional[torch.Tensor] = None,
                      analysis_level: AnalysisLevel = AnalysisLevel.COMPREHENSIVE) -> ModelAnalysisResult:
         """
-        Основной метод анализа модели
+        Main method analysis model
         
         Args:
-            model: Модель для анализа
-            sample_input: Пример входных данных
-            analysis_level: Уровень детализации анализа
+            model: Model for analysis
+            sample_input: Example input data
+            analysis_level: Level detailing analysis
             
         Returns:
-            Результат анализа с рекомендациями
+            Result analysis with recommendations
         """
-        self.logger.info(f"Начинаем анализ модели на уровне {analysis_level.value}")
+        self.logger.info(f"Begin analysis model on level {analysis_level.value}")
         
-        # Базовый анализ структуры
+        # Base analysis structures
         basic_stats = self._analyze_basic_structure(model)
         
-        # Определение типа модели
+        # Determination type model
         model_type = self._classify_model_type(model, basic_stats)
         
-        # Анализ слоев
+        # Analysis layers
         layer_analyses = []
         if analysis_level in [AnalysisLevel.DETAILED, AnalysisLevel.COMPREHENSIVE]:
             layer_analyses = self._analyze_layers(model, sample_input)
         
-        # Идентификация bottleneck слоев
+        # Identification bottleneck layers
         bottleneck_layers = self._identify_bottlenecks(model, layer_analyses)
         
-        # Анализ потенциала сжатия
+        # Analysis potential compression
         compression_potential = self._analyze_compression_potential(
             model, model_type, layer_analyses
         )
         
-        # Генерация рекомендаций
+        # Generation recommendations
         recommendations = self._generate_recommendations(
             model, model_type, compression_potential, layer_analyses
         )
         
-        # Оценка рисков
+        # Estimation risks
         risks, accuracy_impact = self._assess_compression_risks(
             model, model_type, recommendations['recommended_techniques']
         )
@@ -174,13 +174,13 @@ class ModelAnalyzer:
             accuracy_impact_estimate=accuracy_impact
         )
         
-        self.logger.info(f"Анализ завершен. Тип модели: {model_type.value}")
-        self.logger.info(f"Рекомендуемые техники: {recommendations['recommended_techniques']}")
+        self.logger.info(f"Analysis completed. Type model: {model_type.value}")
+        self.logger.info(f"Recommended techniques: {recommendations['recommended_techniques']}")
         
         return result
     
     def _analyze_basic_structure(self, model: nn.Module) -> Dict[str, Any]:
-        """Базовый анализ структуры модели"""
+        """Base analysis structures model"""
         
         stats = {
             'total_parameters': 0,
@@ -199,7 +199,7 @@ class ModelAnalyzer:
         layer_sizes = []
         
         for name, module in model.named_modules():
-            # Считаем слои
+            # Count layers
             if isinstance(module, nn.Linear):
                 stats['num_linear'] += 1
                 layer_size = module.in_features * module.out_features
@@ -221,7 +221,7 @@ class ModelAnalyzer:
                 
             elif isinstance(module, (nn.LSTM, nn.GRU)):
                 stats['num_rnn'] += 1
-                # Приблизительная оценка FLOPs для RNN
+                # Approximate estimation FLOPs for RNN
                 hidden_size = module.hidden_size
                 input_size = module.input_size
                 rnn_flops = (input_size * hidden_size + hidden_size * hidden_size) * 4  # 4 gates for LSTM
@@ -230,13 +230,13 @@ class ModelAnalyzer:
                 
             elif isinstance(module, nn.MultiheadAttention):
                 stats['num_attention'] += 1
-                # Приблизительная оценка для attention
+                # Approximate estimation for attention
                 embed_dim = module.embed_dim
                 attention_flops = embed_dim * embed_dim * 3  # Q, K, V projections
                 stats['estimated_flops'] += attention_flops
                 layer_sizes.append(attention_flops)
         
-        # Подсчет параметров и памяти
+        # Counting parameters and memory
         for param in model.parameters():
             param_count = param.numel()
             stats['total_parameters'] += param_count
@@ -256,30 +256,30 @@ class ModelAnalyzer:
         return stats
     
     def _classify_model_type(self, model: nn.Module, basic_stats: Dict[str, Any]) -> ModelType:
-        """Классификация типа модели на основе структуры"""
+        """Classification type model on basis structures"""
         
         total_layers = max(1, basic_stats['num_layers_total'])
         
-        # Соотношения различных типов слоев
+        # Ratios various types layers
         linear_ratio = basic_stats['num_linear'] / total_layers
         conv_ratio = basic_stats['num_conv'] / total_layers
         rnn_ratio = basic_stats['num_rnn'] / total_layers
         attention_ratio = basic_stats['num_attention'] / total_layers
         
-        # Классификация на основе доминирующих компонентов
-        if attention_ratio > 0.1:  # Больше 10% attention слоев
+        # Classification on basis dominant components
+        if attention_ratio > 0.1:  # More 10% attention layers
             return ModelType.TRANSFORMER
         
-        elif rnn_ratio > 0.1:  # Больше 10% RNN слоев
+        elif rnn_ratio > 0.1:  # More 10% RNN layers
             return ModelType.RECURRENT
         
-        elif conv_ratio > 0.3:  # Больше 30% conv слоев
+        elif conv_ratio > 0.3:  # More 30% conv layers
             if linear_ratio > 0.2:
                 return ModelType.HYBRID  # Conv + Linear
             else:
                 return ModelType.CONVOLUTIONAL
         
-        elif linear_ratio > 0.5:  # Больше 50% linear слоев
+        elif linear_ratio > 0.5:  # More 50% linear layers
             return ModelType.FEEDFORWARD
         
         elif linear_ratio > 0.2 and conv_ratio > 0.1:
@@ -291,11 +291,11 @@ class ModelAnalyzer:
     def _analyze_layers(self, 
                        model: nn.Module,
                        sample_input: Optional[torch.Tensor]) -> List[LayerAnalysis]:
-        """Детальный анализ каждого слоя"""
+        """Detailed analysis of each layer"""
         
         layer_analyses = []
         
-        # Если есть sample_input, можем измерить FLOPs более точно
+        # If exists sample_input, can measure FLOPs more exactly
         if sample_input is not None:
             try:
                 flop_counts = self._profile_model_flops(model, sample_input)
@@ -305,21 +305,21 @@ class ModelAnalyzer:
             flop_counts = {}
         
         for name, module in model.named_modules():
-            # Анализируем только leaf модули с параметрами
+            # Analyze only leaf modules with parameters
             if list(module.children()) or not any(p.numel() > 0 for p in module.parameters()):
                 continue
             
-            # Подсчет параметров слоя
+            # Counting parameters layer
             layer_params = sum(p.numel() for p in module.parameters())
             layer_memory = sum(p.numel() * p.element_size() for p in module.parameters()) / (1024 * 1024)
             
-            # FLOPs для слоя
+            # FLOPs for layer
             layer_flops = flop_counts.get(name, self._estimate_layer_flops(module))
             
-            # Оценка потенциала сжатия для слоя
+            # Estimation potential compression for layer
             compression_potential = self._evaluate_layer_compression_potential(module, layer_params)
             
-            # Рекомендуемые техники для слоя
+            # Recommended techniques for layer
             layer_techniques = self._recommend_layer_techniques(module, compression_potential)
             
             analysis = LayerAnalysis(
@@ -339,26 +339,26 @@ class ModelAnalyzer:
     def _identify_bottlenecks(self, 
                             model: nn.Module,
                             layer_analyses: List[LayerAnalysis]) -> List[str]:
-        """Идентификация bottleneck слоев"""
+        """Identification bottleneck layers"""
         
         if not layer_analyses:
             return []
         
         bottlenecks = []
         
-        # Сортируем слои по количеству параметров
+        # Sort layers by number parameters
         sorted_layers = sorted(layer_analyses, key=lambda x: x.parameters, reverse=True)
         
         total_params = sum(layer.parameters for layer in layer_analyses)
         
-        # Слои, составляющие больше 20% от общих параметров
+        # Layers, components more 20% from total parameters
         param_threshold = total_params * 0.2
         
         for layer in sorted_layers:
             if layer.parameters > param_threshold:
                 bottlenecks.append(layer.name)
         
-        # Также добавляем слои с высоким FLOPs
+        # Also add layers with high FLOPs
         sorted_by_flops = sorted(layer_analyses, key=lambda x: x.flops, reverse=True)
         total_flops = sum(layer.flops for layer in layer_analyses)
         flops_threshold = total_flops * 0.15
@@ -367,13 +367,13 @@ class ModelAnalyzer:
             if layer.flops > flops_threshold and layer.name not in bottlenecks:
                 bottlenecks.append(layer.name)
         
-        return bottlenecks[:10]  # Ограничиваем количество
+        return bottlenecks[:10]  # Limit number
     
     def _analyze_compression_potential(self,
                                      model: nn.Module,
                                      model_type: ModelType,
                                      layer_analyses: List[LayerAnalysis]) -> Dict[str, float]:
-        """Анализ потенциала различных техник сжатия"""
+        """Analysis potential various techniques compression"""
         
         potential = {}
         
@@ -407,27 +407,27 @@ class ModelAnalyzer:
                                 model_type: ModelType,
                                 compression_potential: Dict[str, float],
                                 layer_analyses: List[LayerAnalysis]) -> Dict[str, Any]:
-        """Генерация рекомендаций по сжатию"""
+        """Generation recommendations by compression"""
         
-        # Сортируем техники по потенциалу
+        # Sort techniques by potential
         sorted_techniques = sorted(
             compression_potential.items(), 
             key=lambda x: x[1], 
             reverse=True
         )
         
-        # Выбираем топ техники
+        # Select top techniques
         recommended_techniques = []
         for technique, potential in sorted_techniques:
-            if potential > 0.3:  # Порог потенциала
+            if potential > 0.3:  # Threshold potential
                 recommended_techniques.append(technique)
         
-        # Определяем стратегию сжатия
+        # Define strategy compression
         compression_strategy = self._determine_compression_strategy(
             model_type, recommended_techniques, compression_potential
         )
         
-        # Оценка ожидаемого compression ratio
+        # Estimation expected compression ratio
         expected_ratio = self._estimate_compression_ratio(
             recommended_techniques, compression_potential
         )
@@ -443,45 +443,45 @@ class ModelAnalyzer:
                                 model: nn.Module,
                                 model_type: ModelType,
                                 recommended_techniques: List[str]) -> Tuple[List[str], float]:
-        """Оценка рисков сжатия модели"""
+        """Estimation risks compression model"""
         
         risks = []
         accuracy_impact = 0.0
         
-        # Риски в зависимости от типа модели
+        # Risks in dependencies from type model
         if model_type == ModelType.TRANSFORMER:
-            risks.append("Transformer модели чувствительны к агрессивному сжатию")
+            risks.append("Transformer model sensitive to aggressive compression")
             accuracy_impact += 0.1
         
         if model_type == ModelType.RECURRENT:
-            risks.append("RNN слои могут быть нестабильны после квантизации")
+            risks.append("RNN layers can be unstable after quantization")
             accuracy_impact += 0.05
         
-        # Риски в зависимости от техник
+        # Risks in dependencies from techniques
         if 'quantization' in recommended_techniques:
-            risks.append("Квантизация может повлиять на точность для малых моделей")
+            risks.append("Quantization can affect on accuracy for small models")
             accuracy_impact += 0.03
         
         if 'structured_pruning' in recommended_techniques:
-            risks.append("Структурированная pruning может удалить важные features")
+            risks.append("Structured pruning can remove important features")
             accuracy_impact += 0.05
         
         if len(recommended_techniques) > 2:
-            risks.append("Комбинация множественных техник увеличивает риск потери точности")
+            risks.append("Combination multiple techniques increases risk losses accuracy")
             accuracy_impact += 0.1
         
-        # Crypto trading специфические риски
+        # Crypto trading specific risks
         if self.crypto_domain_focus:
-            risks.append("Для crypto trading критична стабильность предсказаний")
-            risks.append("Directional accuracy может пострадать от aggressive compression")
+            risks.append("For crypto trading critical stability predictions")
+            risks.append("Directional accuracy can suffer from aggressive compression")
             accuracy_impact += 0.05
         
-        return risks, min(accuracy_impact, 0.5)  # Максимум 50% impact
+        return risks, min(accuracy_impact, 0.5)  # Maximum 50% impact
     
-    # Helper methods для анализа
+    # Helper methods for analysis
     
     def _calculate_size_distribution(self, layer_sizes: List[int]) -> Dict[str, float]:
-        """Расчет распределения размеров слоев"""
+        """Calculation distribution sizes layers"""
         
         if not layer_sizes:
             return {}
@@ -499,18 +499,18 @@ class ModelAnalyzer:
         }
     
     def _profile_model_flops(self, model: nn.Module, sample_input: torch.Tensor) -> Dict[str, int]:
-        """Профилирование FLOPs модели"""
+        """Profiling FLOPs model"""
         
-        # Упрощенное профилирование - в production используем специальные tools
+        # Simplified profiling - in production use special tools
         flop_counts = {}
         
         def flop_count_hook(name):
             def hook(module, input, output):
-                # Простая оценка FLOPs
+                # Simple estimation FLOPs
                 if isinstance(module, nn.Linear):
                     flops = module.in_features * module.out_features
                 elif isinstance(module, (nn.Conv1d, nn.Conv2d)):
-                    # Упрощенная оценка для conv
+                    # Simplified estimation for conv
                     if hasattr(output, 'numel'):
                         flops = output.numel() * module.weight.numel() // module.out_channels
                     else:
@@ -522,7 +522,7 @@ class ModelAnalyzer:
             
             return hook
         
-        # Регистрируем hooks
+        # Register hooks
         handles = []
         for name, module in model.named_modules():
             if isinstance(module, (nn.Linear, nn.Conv1d, nn.Conv2d)):
@@ -534,14 +534,14 @@ class ModelAnalyzer:
             with torch.no_grad():
                 model(sample_input)
         finally:
-            # Удаляем hooks
+            # Remove hooks
             for handle in handles:
                 handle.remove()
         
         return flop_counts
     
     def _estimate_layer_flops(self, module: nn.Module) -> int:
-        """Оценка FLOPs для отдельного слоя"""
+        """Estimation FLOPs for individual layer"""
         
         if isinstance(module, nn.Linear):
             return module.in_features * module.out_features * 2  # multiply + add
@@ -555,7 +555,7 @@ class ModelAnalyzer:
             return module.in_channels * module.out_channels * kernel_size * 2
         
         elif isinstance(module, (nn.LSTM, nn.GRU)):
-            # Приблизительная оценка для RNN
+            # Approximate estimation for RNN
             input_size = module.input_size
             hidden_size = module.hidden_size
             return (input_size * hidden_size + hidden_size * hidden_size) * 4 * 2
@@ -568,35 +568,35 @@ class ModelAnalyzer:
             return 0
     
     def _evaluate_layer_compression_potential(self, module: nn.Module, layer_params: int) -> float:
-        """Оценка потенциала сжатия для отдельного слоя"""
+        """Estimation potential compression for individual layer"""
         
         potential = 0.0
         
-        # Базовый потенциал на основе размера слоя
-        if layer_params > 100000:  # Большие слои
+        # Base potential on basis size layer
+        if layer_params > 100000:  # Large layers
             potential += 0.4
-        elif layer_params > 10000:  # Средние слои
+        elif layer_params > 10000:  # Average layers
             potential += 0.3
-        else:  # Маленькие слои
+        else:  # Small layers
             potential += 0.1
         
-        # Дополнительный потенциал в зависимости от типа слоя
+        # Additional potential in dependencies from type layer
         if isinstance(module, nn.Linear):
-            potential += 0.3  # Linear слои хорошо сжимаются
+            potential += 0.3  # Linear layers well compress
         elif isinstance(module, (nn.Conv2d, nn.Conv1d)):
-            potential += 0.2  # Conv слои умеренно сжимаются
+            potential += 0.2  # Conv layers moderately compress
         elif isinstance(module, (nn.LSTM, nn.GRU)):
-            potential += 0.1  # RNN слои сложнее сжимать
+            potential += 0.1  # RNN layers more complex compress
         
         return min(potential, 1.0)
     
     def _recommend_layer_techniques(self, module: nn.Module, compression_potential: float) -> List[str]:
-        """Рекомендация техник сжатия для слоя"""
+        """Recommendation techniques compression for layer"""
         
         techniques = []
         
         if compression_potential > 0.5:
-            # Высокий потенциал - можно применить агрессивные техники
+            # High potential - possible apply aggressive techniques
             if isinstance(module, nn.Linear):
                 techniques.extend(['quantization', 'structured_pruning', 'low_rank_approximation'])
             elif isinstance(module, (nn.Conv1d, nn.Conv2d)):
@@ -605,34 +605,34 @@ class ModelAnalyzer:
                 techniques.append('quantization')
         
         elif compression_potential > 0.3:
-            # Умеренный потенциал
+            # Moderate potential
             techniques.append('quantization')
             if isinstance(module, (nn.Linear, nn.Conv1d, nn.Conv2d)):
                 techniques.append('unstructured_pruning')
         
         else:
-            # Низкий потенциал - только консервативные техники
+            # Low potential - only conservative techniques
             if isinstance(module, (nn.Linear, nn.Conv1d, nn.Conv2d)):
                 techniques.append('quantization')
         
         return techniques
     
     def _evaluate_quantization_potential(self, model: nn.Module, model_type: ModelType) -> float:
-        """Оценка потенциала квантизации"""
+        """Estimation potential quantization"""
         
-        base_potential = 0.7  # Quantization обычно работает хорошо
+        base_potential = 0.7  # Quantization usually works well
         
-        # Корректировка на основе типа модели
+        # Adjustment on basis type model
         if model_type == ModelType.FEEDFORWARD:
             base_potential += 0.2
         elif model_type == ModelType.CONVOLUTIONAL:
             base_potential += 0.1
         elif model_type == ModelType.TRANSFORMER:
-            base_potential -= 0.1  # Attention может быть чувствительным
+            base_potential -= 0.1  # Attention can be sensitive
         elif model_type == ModelType.RECURRENT:
-            base_potential -= 0.2  # RNN могут быть нестабильными
+            base_potential -= 0.2  # RNN can be unstable
         
-        # Проверка на наличие BatchNorm (улучшает quantization)
+        # Validation on presence BatchNorm (improves quantization)
         has_batchnorm = any(isinstance(m, (nn.BatchNorm1d, nn.BatchNorm2d)) for m in model.modules())
         if has_batchnorm:
             base_potential += 0.1
@@ -643,11 +643,11 @@ class ModelAnalyzer:
                                              model: nn.Module,
                                              model_type: ModelType,
                                              layer_analyses: List[LayerAnalysis]) -> float:
-        """Оценка потенциала структурированной pruning"""
+        """Estimation potential structured pruning"""
         
         base_potential = 0.5
         
-        # Высокий потенциал для моделей с большим количеством conv/linear слоев
+        # High potential for models with large number conv/linear layers
         if model_type in [ModelType.CONVOLUTIONAL, ModelType.FEEDFORWARD]:
             base_potential += 0.3
         elif model_type == ModelType.HYBRID:
@@ -655,7 +655,7 @@ class ModelAnalyzer:
         elif model_type == ModelType.TRANSFORMER:
             base_potential += 0.1
         
-        # Корректировка на основе redundancy в слоях
+        # Adjustment on basis redundancy in layers
         if layer_analyses:
             large_layers = [l for l in layer_analyses if l.parameters > 50000]
             redundancy_score = len(large_layers) / len(layer_analyses) if layer_analyses else 0
@@ -667,42 +667,42 @@ class ModelAnalyzer:
                                                model: nn.Module,
                                                model_type: ModelType,
                                                layer_analyses: List[LayerAnalysis]) -> float:
-        """Оценка потенциала неструктурированной pruning"""
+        """Estimation potential unstructured pruning"""
         
-        base_potential = 0.6  # Unstructured обычно работает хорошо
+        base_potential = 0.6  # Unstructured usually works well
         
-        # Особенно эффективно для over-parameterized моделей
+        # Especially efficiently for over-parameterized models
         if layer_analyses:
             total_params = sum(l.parameters for l in layer_analyses)
-            if total_params > 1000000:  # Более 1M параметров
+            if total_params > 1000000:  # More 1M parameters
                 base_potential += 0.2
-            elif total_params > 100000:  # Более 100K параметров
+            elif total_params > 100000:  # More 100K parameters
                 base_potential += 0.1
         
-        # Корректировка по типу модели
+        # Adjustment by type model
         if model_type == ModelType.FEEDFORWARD:
             base_potential += 0.1
         elif model_type == ModelType.RECURRENT:
-            base_potential -= 0.2  # RNN чувствительны к pruning
+            base_potential -= 0.2  # RNN sensitive to pruning
         
         return min(base_potential, 1.0)
     
     def _evaluate_distillation_potential(self, model: nn.Module, model_type: ModelType) -> float:
-        """Оценка потенциала knowledge distillation"""
+        """Estimation potential knowledge distillation"""
         
-        # Distillation эффективно для больших моделей
+        # Distillation efficiently for large models
         total_params = sum(p.numel() for p in model.parameters())
         
-        if total_params > 10000000:  # Более 10M параметров
+        if total_params > 10000000:  # More 10M parameters
             base_potential = 0.8
-        elif total_params > 1000000:  # Более 1M параметров
+        elif total_params > 1000000:  # More 1M parameters
             base_potential = 0.6
-        elif total_params > 100000:  # Более 100K параметров
+        elif total_params > 100000:  # More 100K parameters
             base_potential = 0.4
         else:
-            base_potential = 0.2  # Малые модели плохо distill
+            base_potential = 0.2  # Small model poorly distill
         
-        # Transformer и CNN модели особенно хорошо distill
+        # Transformer and CNN model especially well distill
         if model_type in [ModelType.TRANSFORMER, ModelType.CONVOLUTIONAL]:
             base_potential += 0.1
         
@@ -712,18 +712,18 @@ class ModelAnalyzer:
                                   model: nn.Module,
                                   model_type: ModelType,
                                   layer_analyses: List[LayerAnalysis]) -> float:
-        """Оценка потенциала low-rank approximation"""
+        """Estimation potential low-rank approximation"""
         
-        base_potential = 0.3  # Консервативная оценка
+        base_potential = 0.3  # Conservative estimation
         
-        # Особенно эффективно для Linear слоев
+        # Especially efficiently for Linear layers
         linear_layers = [l for l in layer_analyses if 'Linear' in l.layer_type]
         if linear_layers:
             large_linear = [l for l in linear_layers if l.parameters > 10000]
             if large_linear:
                 base_potential += 0.4
         
-        # Transformer модели хорошо подходят для low-rank
+        # Transformer model well suitable for low-rank
         if model_type == ModelType.TRANSFORMER:
             base_potential += 0.3
         
@@ -733,12 +733,12 @@ class ModelAnalyzer:
                                       model_type: ModelType,
                                       recommended_techniques: List[str],
                                       compression_potential: Dict[str, float]) -> str:
-        """Определение общей стратегии сжатия"""
+        """Determination total strategies compression"""
         
         if not recommended_techniques:
-            return "conservative"  # Консервативный подход
+            return "conservative"  # Conservative approach
         
-        # Агрессивная стратегия если высокий потенциал у нескольких техник
+        # Aggressive strategy if high potential at several techniques
         high_potential_techniques = [
             t for t, p in compression_potential.items() if p > 0.7
         ]
@@ -746,9 +746,9 @@ class ModelAnalyzer:
         if len(high_potential_techniques) >= 2:
             return "aggressive"
         
-        # Комбинированная стратегия
+        # Combined strategy
         if len(recommended_techniques) > 1:
-            # Приоритизируем комбинации
+            # Prioritize combinations
             if 'quantization' in recommended_techniques and 'structured_pruning' in recommended_techniques:
                 return "quantization_first_then_pruning"
             elif 'knowledge_distillation' in recommended_techniques:
@@ -756,7 +756,7 @@ class ModelAnalyzer:
             else:
                 return "combined"
         
-        # Одиночная техника
+        # Single technique
         primary_technique = recommended_techniques[0]
         
         if primary_technique == 'quantization':
@@ -771,14 +771,14 @@ class ModelAnalyzer:
     def _estimate_compression_ratio(self,
                                   recommended_techniques: List[str],
                                   compression_potential: Dict[str, float]) -> float:
-        """Оценка ожидаемого коэффициента сжатия"""
+        """Estimation expected coefficient compression"""
         
         if not recommended_techniques:
-            return 1.0  # Нет сжатия
+            return 1.0  # No compression
         
-        # Базовые коэффициенты для техник
+        # Base coefficients for techniques
         technique_ratios = {
-            'quantization': 2.0,  # INT8 обычно дает 2x
+            'quantization': 2.0,  # INT8 usually gives 2x
             'structured_pruning': 2.5,
             'unstructured_pruning': 3.0,
             'knowledge_distillation': 4.0,
@@ -791,24 +791,24 @@ class ModelAnalyzer:
             base_ratio = technique_ratios.get(technique, 1.0)
             potential = compression_potential.get(technique, 0.5)
             
-            # Корректируем ratio на основе потенциала
+            # Adjust ratio on basis potential
             effective_ratio = 1.0 + (base_ratio - 1.0) * potential
             
-            # Комбинируем ratios (не просто умножаем, так как есть diminishing returns)
+            # Combine ratios (not simply multiply, so as exists diminishing returns)
             total_ratio *= math.pow(effective_ratio, 0.8)
         
-        return min(total_ratio, 10.0)  # Максимум 10x сжатие
+        return min(total_ratio, 10.0)  # Maximum 10x compression
     
     def _initialize_technique_weights(self) -> Dict[str, float]:
-        """Инициализация весов техник для crypto trading"""
+        """Initialization weights techniques for crypto trading"""
         
         if self.crypto_domain_focus:
             return {
-                'quantization': 0.9,  # Высокий приоритет - меньше влияет на accuracy
+                'quantization': 0.9,  # High priority - less affects on accuracy
                 'structured_pruning': 0.7,
-                'unstructured_pruning': 0.6,  # Может влиять на stability
-                'knowledge_distillation': 0.8,  # Хорошо для сложных моделей
-                'low_rank_approximation': 0.5  # Осторожно для trading
+                'unstructured_pruning': 0.6,  # Can affect on stability
+                'knowledge_distillation': 0.8,  # Well for complex models
+                'low_rank_approximation': 0.5  # Warning for trading
             }
         else:
             return {
@@ -820,7 +820,7 @@ class ModelAnalyzer:
             }
     
     def _initialize_architecture_patterns(self) -> Dict[str, Dict[str, Any]]:
-        """Инициализация паттернов архитектур"""
+        """Initialization patterns architectures"""
         
         return {
             'feedforward': {
@@ -844,7 +844,7 @@ class ModelAnalyzer:
         }
     
     def get_compression_recommendations_summary(self, analysis_result: ModelAnalysisResult) -> Dict[str, Any]:
-        """Получение краткого summary рекомендаций"""
+        """Retrieval brief summary recommendations"""
         
         return {
             'model_type': analysis_result.model_type.value,

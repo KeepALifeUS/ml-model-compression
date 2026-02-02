@@ -1,8 +1,8 @@
 """
-Базовый модуль для квантизации моделей в Crypto Trading Bot.
-Поддерживает INT8, INT4 и смешанную точность для оптимизации развертывания.
+Base module for quantization models in Crypto Trading Bot.
+Supports INT8, INT4 and mixed accuracy for optimization deployment.
 
-Edge computing deployment patterns для высокочастотной торговли
+Edge computing deployment patterns for high-frequency trading
 """
 
 from abc import ABC, abstractmethod
@@ -19,29 +19,29 @@ from pathlib import Path
 logger = logging.getLogger(__name__)
 
 class QuantizationType(Enum):
-    """Типы квантизации для оптимизации моделей"""
+    """Types quantization for optimization models"""
     DYNAMIC = "dynamic"
     STATIC = "static"
-    QAT = "quantization_aware_training"  # Квантизация с учетом обучения
+    QAT = "quantization_aware_training"  # Quantization with considering training
     MIXED_PRECISION = "mixed_precision"
 
 class PrecisionLevel(Enum):
-    """Уровни точности для квантизации"""
+    """Levels accuracy for quantization"""
     INT8 = "int8"
     INT4 = "int4"
     FP16 = "fp16"
     BF16 = "bf16"
 
 class BaseQuantizer(ABC):
-    """Базовый класс для всех квантизаторов с enterprise patterns"""
+    """Base class for all quantizers with enterprise patterns"""
     
     def __init__(self, 
                  precision: PrecisionLevel = PrecisionLevel.INT8,
                  backend: str = "fbgemm"):
         """
         Args:
-            precision: Уровень точности (INT8/INT4/FP16)
-            backend: Backend для квантизации (fbgemm для CPU, qnnpack для mobile)
+            precision: Level accuracy (INT8/INT4/FP16)
+            backend: Backend for quantization (fbgemm for CPU, qnnpack for mobile)
         """
         self.precision = precision
         self.backend = backend
@@ -49,15 +49,15 @@ class BaseQuantizer(ABC):
         self._setup_logging()
     
     def _setup_logging(self) -> None:
-        """Настройка логирования для мониторинга процесса"""
+        """Configuration logging for monitoring process"""
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
         
     def _get_quantization_config(self) -> QConfig:
-        """Получение конфигурации квантизации"""
+        """Retrieval configuration quantization"""
         if self.precision == PrecisionLevel.INT8:
             return default_qconfig
         elif self.precision == PrecisionLevel.INT4:
-            # Пользовательская конфигурация для INT4
+            # User configuration for INT4
             return QConfig(
                 activation=torch.quantization.MinMaxObserver.with_args(dtype=torch.qint8),
                 weight=torch.quantization.MinMaxObserver.with_args(dtype=torch.qint8)
@@ -67,31 +67,31 @@ class BaseQuantizer(ABC):
     
     @abstractmethod
     def quantize_model(self, model: nn.Module, **kwargs) -> nn.Module:
-        """Абстрактный метод для квантизации модели"""
+        """Abstract method for quantization model"""
         pass
     
     def validate_model(self, model: nn.Module) -> bool:
-        """Валидация модели перед квантизацией"""
+        """Validation model before quantization"""
         try:
-            # Проверка на наличие неподдерживаемых слоев
+            # Validation on presence unsupported layers
             unsupported_layers = self._find_unsupported_layers(model)
             if unsupported_layers:
-                self.logger.warning(f"Найдены неподдерживаемые слои: {unsupported_layers}")
+                self.logger.warning(f"Found unsupported layers: {unsupported_layers}")
                 return False
             
-            # Проверка размера модели
+            # Validation size model
             model_size = self._calculate_model_size(model)
             if model_size > 500:  # MB
-                self.logger.warning(f"Модель слишком большая: {model_size} MB")
+                self.logger.warning(f"Model too large: {model_size} MB")
             
             return True
             
         except Exception as e:
-            self.logger.error(f"Ошибка валидации модели: {e}")
+            self.logger.error(f"Error validation model: {e}")
             return False
     
     def _find_unsupported_layers(self, model: nn.Module) -> list:
-        """Поиск неподдерживаемых для квантизации слоев"""
+        """Search unsupported for quantization layers"""
         unsupported = []
         unsupported_types = [nn.EmbeddingBag, nn.MultiheadAttention]
         
@@ -102,7 +102,7 @@ class BaseQuantizer(ABC):
         return unsupported
     
     def _calculate_model_size(self, model: nn.Module) -> float:
-        """Расчет размера модели в MB"""
+        """Calculation size model in MB"""
         param_size = 0
         buffer_size = 0
         
@@ -117,19 +117,19 @@ class BaseQuantizer(ABC):
 
 class CryptoModelQuantizer(BaseQuantizer):
     """
-    Специализированный квантизатор для моделей криптотрейдинга
-    с оптимизацией для real-time inference
+    Specialized quantizer for models crypto trading
+    with optimization for real-time inference
     """
     
     def __init__(self, 
                  precision: PrecisionLevel = PrecisionLevel.INT8,
-                 latency_target: float = 1.0,  # мс
+                 latency_target: float = 1.0,  # ms
                  accuracy_threshold: float = 0.95):
         """
         Args:
-            precision: Уровень точности
-            latency_target: Целевая латентность в мс
-            accuracy_threshold: Минимальный порог точности
+            precision: Level accuracy
+            latency_target: Target latency in ms
+            accuracy_threshold: Minimum threshold accuracy
         """
         super().__init__(precision)
         self.latency_target = latency_target
@@ -141,21 +141,21 @@ class CryptoModelQuantizer(BaseQuantizer):
                       calibration_data: Optional[torch.Tensor] = None,
                       quantization_type: QuantizationType = QuantizationType.DYNAMIC) -> nn.Module:
         """
-        Квантизация модели с учетом специфики криптотрейдинга
+        Quantization model with considering specifics crypto trading
         
         Args:
-            model: PyTorch модель для квантизации
-            calibration_data: Данные для калибровки (для статической квантизации)
-            quantization_type: Тип квантизации
+            model: PyTorch model for quantization
+            calibration_data: Data for calibration (for static quantization)
+            quantization_type: Type quantization
             
         Returns:
-            Квантизованная модель
+            Quantized model
         """
         if not self.validate_model(model):
-            raise ValueError("Модель не прошла валидацию")
+            raise ValueError("Model not passed validation")
         
         original_size = self._calculate_model_size(model)
-        self.logger.info(f"Начинаем квантизацию модели. Исходный размер: {original_size:.2f} MB")
+        self.logger.info(f"Begin quantization model. Original size: {original_size:.2f} MB")
         
         try:
             if quantization_type == QuantizationType.DYNAMIC:
@@ -165,9 +165,9 @@ class CryptoModelQuantizer(BaseQuantizer):
             elif quantization_type == QuantizationType.QAT:
                 quantized_model = self._quantization_aware_training(model)
             else:
-                raise ValueError(f"Неподдерживаемый тип квантизации: {quantization_type}")
+                raise ValueError(f"Unsupported type quantization: {quantization_type}")
             
-            # Анализ результатов сжатия
+            # Analysis results compression
             compressed_size = self._calculate_model_size(quantized_model)
             compression_ratio = original_size / compressed_size
             
@@ -179,23 +179,23 @@ class CryptoModelQuantizer(BaseQuantizer):
                 "quantization_type": quantization_type.value
             }
             
-            self.logger.info(f"Квантизация завершена. Коэффициент сжатия: {compression_ratio:.2f}x")
+            self.logger.info(f"Quantization completed. Coefficient compression: {compression_ratio:.2f}x")
             
             return quantized_model
             
         except Exception as e:
-            self.logger.error(f"Ошибка при квантизации модели: {e}")
+            self.logger.error(f"Error when quantization model: {e}")
             raise
     
     def _dynamic_quantization(self, model: nn.Module) -> nn.Module:
-        """Динамическая квантизация для быстрого inference"""
-        # Определяем слои для квантизации (обычно Linear и Conv)
+        """Dynamic quantization for fast inference"""
+        # Define layers for quantization (usually Linear and Conv)
         layers_to_quantize = {nn.Linear, nn.Conv2d, nn.Conv1d}
         
         if self.precision == PrecisionLevel.INT8:
             dtype = torch.qint8
         elif self.precision == PrecisionLevel.INT4:
-            # PyTorch пока не поддерживает INT4 нативно, эмулируем через INT8
+            # PyTorch while not supports INT4 natively, emulate through INT8
             dtype = torch.qint8
         else:
             dtype = torch.qint8
@@ -209,72 +209,72 @@ class CryptoModelQuantizer(BaseQuantizer):
         return quantized_model
     
     def _static_quantization(self, model: nn.Module, calibration_data: torch.Tensor) -> nn.Module:
-        """Статическая квантизация с калибровкой"""
+        """Static quantization with calibration"""
         if calibration_data is None:
-            raise ValueError("Для статической квантизации нужны данные калибровки")
+            raise ValueError("For static quantization needed data calibration")
         
-        # Подготовка модели к квантизации
+        # Preparation model to quantization
         model.eval()
         model.qconfig = self.config
         
-        # Подготовка модели
+        # Preparation model
         prepared_model = torch.quantization.prepare(model)
         
-        # Калибровка на представительных данных
-        self.logger.info("Выполняем калибровку модели...")
+        # Calibration on representative data
+        self.logger.info("Execute calibration model...")
         with torch.no_grad():
             for batch in self._create_calibration_batches(calibration_data):
                 prepared_model(batch)
         
-        # Конвертация в квантизованную модель
+        # Conversion in quantized model
         quantized_model = torch.quantization.convert(prepared_model)
         
         return quantized_model
     
     def _quantization_aware_training(self, model: nn.Module) -> nn.Module:
-        """Квантизация с учетом обучения (требует дообучения)"""
+        """Quantization with considering training (requires fine-tuning)"""
         model.train()
         model.qconfig = self.config
         
-        # Подготовка к QAT
+        # Preparation to QAT
         prepared_model = torch.quantization.prepare_qat(model)
         
-        self.logger.info("Модель подготовлена к QAT. Необходимо дообучение.")
+        self.logger.info("Model prepared to QAT. Necessary fine-tuning.")
         
         return prepared_model
     
     def _create_calibration_batches(self, calibration_data: torch.Tensor, batch_size: int = 32):
-        """Создание батчей для калибровки"""
+        """Creation batches for calibration"""
         for i in range(0, len(calibration_data), batch_size):
             yield calibration_data[i:i + batch_size]
     
     def optimize_for_trading(self, model: nn.Module) -> nn.Module:
         """
-        Специальная оптимизация для задач криптотрейдинга
-        с фокусом на минимизацию латентности
+        Special optimization for tasks crypto trading
+        with focus on minimization latency
         """
-        # Фьюзинг операций для уменьшения латентности
+        # Fusing operations for decrease latency
         fused_model = self._fuse_operations(model)
         
-        # Оптимизация для ONNX Runtime (для production deployment)
+        # Optimization for ONNX Runtime (for production deployment)
         if hasattr(torch, 'jit'):
             try:
                 traced_model = torch.jit.trace(fused_model, torch.randn(1, *self._get_input_shape(model)))
                 optimized_model = torch.jit.optimize_for_inference(traced_model)
                 return optimized_model
             except Exception as e:
-                self.logger.warning(f"JIT оптимизация не удалась: {e}")
+                self.logger.warning(f"JIT optimization not succeeded: {e}")
                 return fused_model
         
         return fused_model
     
     def _fuse_operations(self, model: nn.Module) -> nn.Module:
-        """Фьюзинг операций для ускорения inference"""
+        """Fusing operations for acceleration inference"""
         try:
-            # Стандартные фьюзинги: Conv+ReLU, Linear+ReLU
+            # Standard fusions: Conv+ReLU, Linear+ReLU
             modules_to_fuse = []
             
-            # Поиск последовательностей для фьюзинга
+            # Search sequences for fusing
             module_list = list(model.named_modules())
             for i, (name, module) in enumerate(module_list[:-1]):
                 next_name, next_module = module_list[i + 1]
@@ -289,35 +289,35 @@ class CryptoModelQuantizer(BaseQuantizer):
             
             if modules_to_fuse:
                 fused_model = torch.quantization.fuse_modules(model, modules_to_fuse)
-                self.logger.info(f"Выполнен фьюзинг {len(modules_to_fuse)} пар модулей")
+                self.logger.info(f"Completed fusing {len(modules_to_fuse)} pairs modules")
                 return fused_model
             
         except Exception as e:
-            self.logger.warning(f"Фьюзинг операций не удался: {e}")
+            self.logger.warning(f"Fusing operations not succeeded: {e}")
         
         return model
     
     def _get_input_shape(self, model: nn.Module) -> Tuple[int, ...]:
-        """Определение размера входных данных модели"""
-        # Простая эвристика для определения размера входа
+        """Determination size input data model"""
+        # Simple heuristic for determination size input
         first_layer = next(iter(model.modules()))
         if isinstance(first_layer, nn.Conv2d):
-            # Предполагаем стандартный размер для crypto данных
-            return (first_layer.in_channels, 64, 64)  # Пример для 2D данных
+            # Assume standard size for crypto data
+            return (first_layer.in_channels, 64, 64)  # Example for 2D data
         elif isinstance(first_layer, nn.Linear):
             return (first_layer.in_features,)
         else:
-            # Дефолтный размер для временных рядов
-            return (100,)  # 100 временных шагов
+            # Default size for temporal series
+            return (100,)  # 100 temporal steps
     
     def export_model(self, model: nn.Module, export_path: str, format: str = "onnx") -> bool:
         """
-        Экспорт квантизованной модели для deployment
+        Export quantized model for deployment
         
         Args:
-            model: Квантизованная модель
-            export_path: Путь для сохранения
-            format: Формат экспорта (onnx, torchscript, tflite)
+            model: Quantized model
+            export_path: Path for saving
+            format: Format export (onnx, torchscript, tflite)
         """
         try:
             export_path = Path(export_path)
@@ -328,17 +328,17 @@ class CryptoModelQuantizer(BaseQuantizer):
             elif format.lower() == "torchscript":
                 self._export_to_torchscript(model, export_path)
             else:
-                raise ValueError(f"Неподдерживаемый формат экспорта: {format}")
+                raise ValueError(f"Unsupported format export: {format}")
             
-            self.logger.info(f"Модель экспортирована в {export_path}")
+            self.logger.info(f"Model exported in {export_path}")
             return True
             
         except Exception as e:
-            self.logger.error(f"Ошибка экспорта модели: {e}")
+            self.logger.error(f"Error export model: {e}")
             return False
     
     def _export_to_onnx(self, model: nn.Module, export_path: Path) -> None:
-        """Экспорт в ONNX формат для cross-platform deployment"""
+        """Export in ONNX format for cross-platform deployment"""
         try:
             import torch.onnx
             
@@ -357,11 +357,11 @@ class CryptoModelQuantizer(BaseQuantizer):
                 dynamic_axes={'input': {0: 'batch_size'}, 'output': {0: 'batch_size'}}
             )
         except ImportError:
-            self.logger.error("ONNX не установлен. Установите: pip install onnx")
+            self.logger.error("ONNX not installed. Set: pip install onnx")
             raise
     
     def _export_to_torchscript(self, model: nn.Module, export_path: Path) -> None:
-        """Экспорт в TorchScript для production inference"""
+        """Export in TorchScript for production inference"""
         model.eval()
         dummy_input = torch.randn(1, *self._get_input_shape(model))
         
@@ -369,7 +369,7 @@ class CryptoModelQuantizer(BaseQuantizer):
         traced_model.save(str(export_path.with_suffix('.pt')))
     
     def get_compression_report(self) -> Dict[str, Any]:
-        """Получение отчета о сжатии модели"""
+        """Retrieval report about compression model"""
         return {
             "compression_stats": self.compression_stats,
             "config": {
@@ -382,15 +382,15 @@ class CryptoModelQuantizer(BaseQuantizer):
         }
     
     def _get_optimization_recommendations(self) -> Dict[str, str]:
-        """Рекомендации по дальнейшей оптимизации"""
+        """Recommendations by further optimization"""
         recommendations = {}
         
         if self.compression_stats.get("compression_ratio", 0) < 2:
-            recommendations["compression"] = "Попробуйте более агрессивную квантизацию или pruning"
+            recommendations["compression"] = "Try more aggressive quantization or pruning"
         
         if self.precision == PrecisionLevel.INT8:
-            recommendations["precision"] = "Рассмотрите INT4 для большего сжатия"
+            recommendations["precision"] = "Consider INT4 for larger compression"
         
-        recommendations["deployment"] = "Используйте ONNX Runtime для production inference"
+        recommendations["deployment"] = "Use ONNX Runtime for production inference"
         
         return recommendations

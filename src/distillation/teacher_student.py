@@ -1,8 +1,8 @@
 """
-Teacher-Student архитектура для криптотрейдинга с онлайн дистилляцией
-и ensemble методами для максимальной эффективности компрессии.
+Teacher-Student architecture for crypto trading with online distillation
+and ensemble methods for maximum efficiency compression.
 
-Multi-model orchestration patterns для edge deployment
+Multi-model orchestration patterns for edge deployment
 """
 
 from typing import Dict, Any, Optional, List, Tuple, Union, Callable
@@ -21,24 +21,24 @@ from .knowledge_distiller import BaseKnowledgeDistiller, DistillationLoss
 logger = logging.getLogger(__name__)
 
 class TeacherEnsembleMode(Enum):
-    """Режимы работы ensemble teacher моделей"""
-    AVERAGING = "averaging"           # Простое усреднение выходов
-    WEIGHTED = "weighted"            # Взвешенное усреднение
+    """Modes work ensemble teacher models"""
+    AVERAGING = "averaging"           # Simple averaging outputs
+    WEIGHTED = "weighted"            # Weighted averaging
     ATTENTION = "attention"          # Attention-based combination
-    DYNAMIC = "dynamic"              # Динамический выбор teacher
-    HIERARCHICAL = "hierarchical"    # Иерархическая структура
+    DYNAMIC = "dynamic"              # Dynamic selection teacher
+    HIERARCHICAL = "hierarchical"    # Hierarchical structure
 
 class OnlineDistillationMode(Enum):
-    """Режимы онлайн дистилляции"""
-    MUTUAL_LEARNING = "mutual"       # Взаимное обучение нескольких моделей
-    SELF_DISTILLATION = "self"       # Самодистилляция
-    PROGRESSIVE = "progressive"      # Прогрессивная дистилляция
-    ADAPTIVE = "adaptive"            # Адаптивная дистилляция
+    """Modes online distillation"""
+    MUTUAL_LEARNING = "mutual"       # Mutual training several models
+    SELF_DISTILLATION = "self"       # Self-distillation
+    PROGRESSIVE = "progressive"      # Progressive distillation
+    ADAPTIVE = "adaptive"            # Adaptive distillation
 
 class TeacherStudentArchitecture:
     """
-    Комплексная Teacher-Student архитектура для crypto trading моделей
-    с поддержкой ensemble teachers и online distillation
+    Comprehensive Teacher-Student architecture for crypto trading models
+    with support ensemble teachers and online distillation
     """
     
     def __init__(self,
@@ -47,11 +47,11 @@ class TeacherStudentArchitecture:
                  crypto_domain_config: Optional[Dict[str, Any]] = None):
         """
         Args:
-            teacher_models: Одна или несколько teacher моделей
-            student_architecture: Конфигурация архитектуры student
-            crypto_domain_config: Конфигурация для crypto trading
+            teacher_models: One or several teacher models
+            student_architecture: Configuration architectures student
+            crypto_domain_config: Configuration for crypto trading
         """
-        # Обеспечиваем что teacher_models это список
+        # Ensure that teacher_models this list
         if isinstance(teacher_models, nn.Module):
             self.teacher_models = [teacher_models]
         else:
@@ -60,21 +60,21 @@ class TeacherStudentArchitecture:
         self.student_architecture = student_architecture
         self.crypto_config = crypto_domain_config or {}
         
-        # Создаем student модель
+        # Create student model
         self.student_model = self._create_student_model()
         
         self.logger = logging.getLogger(f"{__name__}.TeacherStudentArchitecture")
         self.training_history = []
         self.performance_metrics = {}
         
-        # Замораживаем teachers
+        # Freeze teachers
         for teacher in self.teacher_models:
             teacher.eval()
             for param in teacher.parameters():
                 param.requires_grad = False
     
     def _create_student_model(self) -> nn.Module:
-        """Создание student модели на основе конфигурации"""
+        """Creation student model on basis configuration"""
         arch_type = self.student_architecture.get('type', 'sequential')
         
         if arch_type == 'sequential':
@@ -86,10 +86,10 @@ class TeacherStudentArchitecture:
         elif arch_type == 'custom':
             return self._create_custom_student()
         else:
-            raise ValueError(f"Неподдерживаемый тип архитектуры: {arch_type}")
+            raise ValueError(f"Unsupported type architectures: {arch_type}")
     
     def _create_sequential_student(self) -> nn.Module:
-        """Создание простой sequential student модели"""
+        """Creation simple sequential student model"""
         layers = []
         input_size = self.student_architecture.get('input_size', 100)
         hidden_sizes = self.student_architecture.get('hidden_sizes', [64, 32])
@@ -110,7 +110,7 @@ class TeacherStudentArchitecture:
         return nn.Sequential(*layers)
     
     def _create_lstm_attention_student(self) -> nn.Module:
-        """Создание LSTM student с attention механизмом"""
+        """Creation LSTM student with attention mechanism"""
         return LSTMAttentionStudent(
             input_size=self.student_architecture.get('input_size', 100),
             hidden_size=self.student_architecture.get('lstm_hidden', 32),
@@ -120,7 +120,7 @@ class TeacherStudentArchitecture:
         )
     
     def _create_transformer_lite_student(self) -> nn.Module:
-        """Создание легкой Transformer student модели"""
+        """Creation light Transformer student model"""
         return TransformerLiteStudent(
             input_dim=self.student_architecture.get('input_size', 100),
             embed_dim=self.student_architecture.get('embed_dim', 64),
@@ -130,8 +130,8 @@ class TeacherStudentArchitecture:
         )
     
     def _create_custom_student(self) -> nn.Module:
-        """Создание кастомной student модели"""
-        # Пример кастомной архитектуры для crypto trading
+        """Creation custom student model"""
+        # Example custom architectures for crypto trading
         return CryptoTradingStudent(
             sequence_length=self.student_architecture.get('sequence_length', 100),
             feature_dim=self.student_architecture.get('feature_dim', 10),
@@ -143,11 +143,11 @@ class TeacherStudentArchitecture:
                                  ensemble_mode: TeacherEnsembleMode = TeacherEnsembleMode.WEIGHTED,
                                  weights: Optional[List[float]] = None) -> 'EnsembleDistiller':
         """
-        Создание ensemble distiller для multiple teachers
+        Creation ensemble distiller for multiple teachers
         
         Args:
-            ensemble_mode: Режим комбинирования teachers
-            weights: Веса для weighted averaging
+            ensemble_mode: Mode combining teachers
+            weights: Weights for weighted averaging
             
         Returns:
             EnsembleDistiller instance
@@ -164,11 +164,11 @@ class TeacherStudentArchitecture:
                                online_mode: OnlineDistillationMode = OnlineDistillationMode.MUTUAL_LEARNING,
                                num_peer_models: int = 2) -> 'OnlineDistiller':
         """
-        Создание online distiller для continuous learning
+        Creation online distiller for continuous learning
         
         Args:
-            online_mode: Режим онлайн дистилляции
-            num_peer_models: Количество peer моделей для mutual learning
+            online_mode: Mode online distillation
+            num_peer_models: Number peer models for mutual learning
             
         Returns:
             OnlineDistiller instance
@@ -182,7 +182,7 @@ class TeacherStudentArchitecture:
         )
     
     def get_architecture_summary(self) -> Dict[str, Any]:
-        """Получение summary архитектуры"""
+        """Retrieval summary architectures"""
         def count_parameters(model):
             return sum(p.numel() for p in model.parameters() if p.requires_grad)
         
@@ -200,7 +200,7 @@ class TeacherStudentArchitecture:
         }
 
 class LSTMAttentionStudent(nn.Module):
-    """LSTM student модель с attention механизмом для временных рядов"""
+    """LSTM student model with attention mechanism for temporal series"""
     
     def __init__(self,
                  input_size: int,
@@ -244,7 +244,7 @@ class LSTMAttentionStudent(nn.Module):
         return output
 
 class TransformerLiteStudent(nn.Module):
-    """Легкая Transformer модель для crypto trading"""
+    """Light Transformer model for crypto trading"""
     
     def __init__(self,
                  input_dim: int,
@@ -289,7 +289,7 @@ class TransformerLiteStudent(nn.Module):
         return output
 
 class SimplifiedTransformerLayer(nn.Module):
-    """Упрощенный Transformer layer для эффективности"""
+    """Simplified Transformer layer for efficiency"""
     
     def __init__(self, embed_dim: int, num_heads: int):
         super().__init__()
@@ -322,7 +322,7 @@ class SimplifiedTransformerLayer(nn.Module):
         return x
 
 class CryptoTradingStudent(nn.Module):
-    """Специализированная student модель для crypto trading"""
+    """Specialized student model for crypto trading"""
     
     def __init__(self,
                  sequence_length: int,
@@ -359,7 +359,7 @@ class CryptoTradingStudent(nn.Module):
             nn.Linear(16, output_dim)
         )
         
-        # Market regime detection (дополнительный выход)
+        # Market regime detection (additional output)
         self.regime_detector = nn.Sequential(
             nn.Linear(32, 8),
             nn.ReLU(),
@@ -382,7 +382,7 @@ class CryptoTradingStudent(nn.Module):
         # Trading prediction
         trading_output = self.trading_head(final_state)
         
-        # Market regime (дополнительный выход для обучения)
+        # Market regime (additional output for training)
         regime_output = self.regime_detector(final_state)
         
         return {
@@ -392,7 +392,7 @@ class CryptoTradingStudent(nn.Module):
         }
 
 class EnsembleDistiller(BaseKnowledgeDistiller):
-    """Distiller для ensemble teachers"""
+    """Distiller for ensemble teachers"""
     
     def __init__(self,
                  teacher_models: List[nn.Module],
@@ -401,24 +401,24 @@ class EnsembleDistiller(BaseKnowledgeDistiller):
                  weights: Optional[List[float]] = None,
                  crypto_config: Optional[Dict[str, Any]] = None):
         
-        # Используем первую teacher модель как основную для BaseKnowledgeDistiller
+        # Use first teacher model as main for BaseKnowledgeDistiller
         super().__init__(teacher_models[0], student_model)
         
         self.teacher_models = teacher_models
         self.ensemble_mode = ensemble_mode
         self.crypto_config = crypto_config or {}
         
-        # Настройка весов для weighted averaging
+        # Configuration weights for weighted averaging
         if weights is None:
             self.weights = [1.0 / len(teacher_models)] * len(teacher_models)
         else:
             if len(weights) != len(teacher_models):
-                raise ValueError("Количество весов должно соответствовать количеству teachers")
-            # Нормализуем веса
+                raise ValueError("Number weights must comply number teachers")
+            # Normalize weights
             total_weight = sum(weights)
             self.weights = [w / total_weight for w in weights]
         
-        # Attention network для dynamic ensemble
+        # Attention network for dynamic ensemble
         if ensemble_mode == TeacherEnsembleMode.ATTENTION:
             self.attention_network = nn.Sequential(
                 nn.Linear(self._get_teacher_output_dim(), 64),
@@ -430,19 +430,19 @@ class EnsembleDistiller(BaseKnowledgeDistiller):
         self.ensemble_stats = {}
     
     def _get_teacher_output_dim(self) -> int:
-        """Получение размерности выхода teacher моделей"""
+        """Retrieval dimensionality output teacher models"""
         dummy_input = self._create_dummy_input()
         with torch.no_grad():
             output = self.teacher_models[0](dummy_input)
             if isinstance(output, dict):
-                # Для crypto trading моделей с несколькими выходами
+                # For crypto trading models with several outputs
                 return output['trading_signal'].shape[-1]
             return output.shape[-1]
     
     def _ensemble_teacher_outputs(self,
                                  teacher_outputs: List[torch.Tensor],
                                  inputs: torch.Tensor) -> torch.Tensor:
-        """Комбинирование выходов ensemble teachers"""
+        """Combining outputs ensemble teachers"""
         
         if self.ensemble_mode == TeacherEnsembleMode.AVERAGING:
             return torch.mean(torch.stack(teacher_outputs), dim=0)
@@ -454,11 +454,11 @@ class EnsembleDistiller(BaseKnowledgeDistiller):
             return torch.sum(torch.stack(weighted_outputs), dim=0)
         
         elif self.ensemble_mode == TeacherEnsembleMode.ATTENTION:
-            # Concatenate outputs для attention network
+            # Concatenate outputs for attention network
             concat_outputs = torch.cat(teacher_outputs, dim=-1)
             attention_weights = self.attention_network(concat_outputs)
             
-            # Применяем attention веса
+            # Apply attention weights
             weighted_outputs = []
             for i, output in enumerate(teacher_outputs):
                 weight = attention_weights[:, i:i+1]
@@ -467,20 +467,20 @@ class EnsembleDistiller(BaseKnowledgeDistiller):
             return torch.sum(torch.stack(weighted_outputs), dim=0)
         
         elif self.ensemble_mode == TeacherEnsembleMode.DYNAMIC:
-            # Динамический выбор лучшего teacher на основе confidence
+            # Dynamic selection best teacher on basis confidence
             confidences = []
             for output in teacher_outputs:
-                # Простая мера confidence - entropy
+                # Simple measure confidence - entropy
                 probs = F.softmax(output, dim=-1)
                 entropy = -torch.sum(probs * torch.log(probs + 1e-8), dim=-1)
                 confidence = 1.0 / (1.0 + entropy)
                 confidences.append(confidence)
             
-            # Выбираем teacher с максимальной confidence
+            # Select teacher with maximum confidence
             confidences = torch.stack(confidences, dim=-1)
             best_teacher_idx = torch.argmax(confidences, dim=-1)
             
-            # Создаем выход на основе выборов
+            # Create output on basis selections
             result = torch.zeros_like(teacher_outputs[0])
             for i in range(len(teacher_outputs)):
                 mask = (best_teacher_idx == i).float().unsqueeze(-1)
@@ -489,12 +489,12 @@ class EnsembleDistiller(BaseKnowledgeDistiller):
             return result
         
         else:  # HIERARCHICAL
-            # Иерархическое комбинирование (пример: голосование по парам)
+            # Hierarchical combining (example: voting by pairs)
             if len(teacher_outputs) >= 2:
-                # Берем первые два как основные
+                # Take first two as main
                 primary = (teacher_outputs[0] + teacher_outputs[1]) / 2
                 
-                # Добавляем остальные с меньшим весом
+                # Add remaining with smaller weight
                 if len(teacher_outputs) > 2:
                     secondary = torch.mean(torch.stack(teacher_outputs[2:]), dim=0)
                     return 0.7 * primary + 0.3 * secondary
@@ -523,22 +523,22 @@ class EnsembleDistiller(BaseKnowledgeDistiller):
         
         criterion = DistillationLoss(self.temperature, self.alpha, self.beta)
         
-        self.logger.info(f"Начинаем ensemble distillation с {len(self.teacher_models)} teachers")
-        self.logger.info(f"Режим ensemble: {self.ensemble_mode.value}")
+        self.logger.info(f"Begin ensemble distillation with {len(self.teacher_models)} teachers")
+        self.logger.info(f"Mode ensemble: {self.ensemble_mode.value}")
         
         train_history = []
         val_history = []
         
         for epoch in range(num_epochs):
-            # Обучение
+            # Training
             train_stats = self._train_ensemble_epoch(train_loader, optimizer, criterion)
             
-            # Валидация
+            # Validation
             val_stats = self._validate_ensemble_epoch(val_loader, criterion)
             
             scheduler.step()
             
-            # Логирование
+            # Logging
             if epoch % 10 == 0 or epoch == num_epochs - 1:
                 self.logger.info(f"Epoch {epoch+1}/{num_epochs}: "
                                f"Train Loss: {train_stats['total_loss']:.4f}, "
@@ -551,10 +551,10 @@ class EnsembleDistiller(BaseKnowledgeDistiller):
             if len(val_history) > 15:
                 recent_losses = [s['total_loss'] for s in val_history[-15:]]
                 if all(recent_losses[i] <= recent_losses[i+1] for i in range(14)):
-                    self.logger.info(f"Early stopping на эпохе {epoch+1}")
+                    self.logger.info(f"Early stopping on epoch {epoch+1}")
                     break
         
-        # Статистики ensemble
+        # Statistics ensemble
         self.ensemble_stats = {
             'num_teachers': len(self.teacher_models),
             'ensemble_mode': self.ensemble_mode.value,
@@ -564,7 +564,7 @@ class EnsembleDistiller(BaseKnowledgeDistiller):
             'epochs_trained': epoch + 1
         }
         
-        self.logger.info(f"Ensemble distillation завершен после {epoch + 1} эпох")
+        self.logger.info(f"Ensemble distillation completed after {epoch + 1} epochs")
         
         return self.student_model
     
@@ -572,7 +572,7 @@ class EnsembleDistiller(BaseKnowledgeDistiller):
                              train_loader: torch.utils.data.DataLoader,
                              optimizer: torch.optim.Optimizer,
                              criterion: DistillationLoss) -> Dict[str, float]:
-        """Обучение с ensemble teachers"""
+        """Training with ensemble teachers"""
         self.student_model.train()
         
         total_loss = 0.0
@@ -588,7 +588,7 @@ class EnsembleDistiller(BaseKnowledgeDistiller):
             
             optimizer.zero_grad()
             
-            # Forward passes через all teachers
+            # Forward passes through all teachers
             teacher_outputs = []
             with torch.no_grad():
                 for teacher in self.teacher_models:
@@ -630,7 +630,7 @@ class EnsembleDistiller(BaseKnowledgeDistiller):
     def _validate_ensemble_epoch(self,
                                 val_loader: torch.utils.data.DataLoader,
                                 criterion: DistillationLoss) -> Dict[str, float]:
-        """Валидация с ensemble teachers"""
+        """Validation with ensemble teachers"""
         self.student_model.eval()
         
         total_loss = 0.0
@@ -679,7 +679,7 @@ class EnsembleDistiller(BaseKnowledgeDistiller):
         }
     
     def get_ensemble_report(self) -> Dict[str, Any]:
-        """Получение отчета об ensemble distillation"""
+        """Retrieval report about ensemble distillation"""
         return {
             'ensemble_stats': self.ensemble_stats,
             'teacher_models_count': len(self.teacher_models),
@@ -690,8 +690,8 @@ class EnsembleDistiller(BaseKnowledgeDistiller):
 
 class OnlineDistiller:
     """
-    Online knowledge distillation для continuous learning
-    в динамичной crypto trading среде
+    Online knowledge distillation for continuous learning
+    in dynamic crypto trading environment
     """
     
     def __init__(self,
@@ -709,7 +709,7 @@ class OnlineDistiller:
         
         self.logger = logging.getLogger(f"{__name__}.OnlineDistiller")
         
-        # Создаем peer модели для mutual learning
+        # Create peer model for mutual learning
         if online_mode == OnlineDistillationMode.MUTUAL_LEARNING:
             self.peer_models = [copy.deepcopy(student_model) for _ in range(num_peer_models)]
         
@@ -720,17 +720,17 @@ class OnlineDistiller:
                                update_frequency: int = 10,
                                adaptation_rate: float = 0.1) -> nn.Module:
         """
-        Continuous online distillation на streaming данных
+        Continuous online distillation on streaming data
         
         Args:
-            data_stream: Stream crypto данных
-            update_frequency: Частота обновления knowledge
-            adaptation_rate: Скорость адаптации к новым паттернам
+            data_stream: Stream crypto data
+            update_frequency: Frequency updates knowledge
+            adaptation_rate: Speed adaptation to new patterns
             
         Returns:
-            Адаптированная student модель
+            Adapted student model
         """
-        self.logger.info(f"Начинаем online distillation в режиме {self.online_mode.value}")
+        self.logger.info(f"Begin online distillation in mode {self.online_mode.value}")
         
         optimizer = torch.optim.AdamW(
             self.student_model.parameters(),
@@ -764,22 +764,22 @@ class OnlineDistiller:
                 self._update_knowledge_base()
                 self.logger.info(f"Knowledge update at batch {batch_count}, loss: {loss:.4f}")
             
-            # Адаптивное изменение learning rate
+            # Adaptive change learning rate
             if batch_count % (update_frequency * 5) == 0:
-                adaptation_rate *= 0.95  # Постепенное уменьшение
+                adaptation_rate *= 0.95  # Gradual reduction
                 for param_group in optimizer.param_groups:
                     param_group['lr'] = adaptation_rate
         
-        self.logger.info(f"Online distillation завершен после {batch_count} batches")
+        self.logger.info(f"Online distillation completed after {batch_count} batches")
         return self.student_model
     
     def _mutual_learning_step(self,
                              inputs: torch.Tensor,
                              targets: torch.Tensor,
                              optimizer: torch.optim.Optimizer) -> float:
-        """Шаг mutual learning между peer моделями"""
+        """Step mutual learning between peer models"""
         
-        # Forward passes всех peer моделей
+        # Forward passes all peer models
         peer_outputs = []
         for peer in self.peer_models:
             peer.train()
@@ -799,7 +799,7 @@ class OnlineDistiller:
         # Mutual learning loss
         total_loss = 0.0
         
-        # Student учится от peers
+        # Student learns from peers
         for peer_output in peer_outputs:
             kl_loss = F.kl_div(
                 F.log_softmax(student_output, dim=-1),
@@ -821,9 +821,9 @@ class OnlineDistiller:
                                inputs: torch.Tensor,
                                targets: torch.Tensor,
                                optimizer: torch.optim.Optimizer) -> float:
-        """Self-distillation шаг"""
+        """Self-distillation step"""
         
-        # Сохраняем текущее состояние модели как teacher
+        # Save current state model as teacher
         with torch.no_grad():
             teacher_output = self.student_model(inputs)
             if isinstance(teacher_output, dict):
@@ -856,9 +856,9 @@ class OnlineDistiller:
                                      inputs: torch.Tensor,
                                      targets: torch.Tensor,
                                      optimizer: torch.optim.Optimizer) -> float:
-        """Progressive distillation шаг"""
+        """Progressive distillation step"""
         
-        # Прогрессивно используем разных teachers
+        # Progressively use different teachers
         teacher_idx = len(self.online_stats['loss']) % len(self.teacher_models)
         current_teacher = self.teacher_models[teacher_idx]
         
@@ -878,9 +878,9 @@ class OnlineDistiller:
         distill_loss = F.mse_loss(student_output, teacher_output)
         task_loss = F.mse_loss(student_output, targets)
         
-        # Прогрессивно меняем баланс
+        # Progressively change balance
         progress = min(1.0, len(self.online_stats['loss']) / 1000.0)
-        alpha = 0.9 * (1 - progress) + 0.1 * progress  # От 0.9 до 0.1
+        alpha = 0.9 * (1 - progress) + 0.1 * progress  # From 0.9 until 0.1
         
         total_loss = alpha * distill_loss + (1 - alpha) * task_loss
         
@@ -893,36 +893,36 @@ class OnlineDistiller:
                                    inputs: torch.Tensor,
                                    targets: torch.Tensor,
                                    optimizer: torch.optim.Optimizer) -> float:
-        """Adaptive distillation с динамическим выбором strategy"""
+        """Adaptive distillation with dynamic selection strategy"""
         
-        # Оценка текущей performance
+        # Estimation current performance
         recent_losses = self.online_stats['loss'][-10:] if len(self.online_stats['loss']) >= 10 else []
         
         if not recent_losses or np.mean(recent_losses) > 0.1:
-            # Высокий loss - используем strong teacher guidance
+            # High loss - use strong teacher guidance
             return self._progressive_distillation_step(inputs, targets, optimizer)
         else:
-            # Низкий loss - используем self-distillation
+            # Low loss - use self-distillation
             return self._self_distillation_step(inputs, targets, optimizer)
     
     def _update_knowledge_base(self):
-        """Обновление knowledge base на основе recent performance"""
+        """Update knowledge base on basis recent performance"""
         
         if len(self.online_stats['loss']) > 100:
-            # Анализ последних performance
+            # Analysis recent performance
             recent_performance = np.mean(self.online_stats['loss'][-50:])
             older_performance = np.mean(self.online_stats['loss'][-100:-50])
             
             if recent_performance > older_performance * 1.1:
-                # Performance ухудшается - нужна адаптация
+                # Performance worsens - needed adaptation
                 self.logger.info("Detecting performance degradation, updating knowledge base")
                 
-                # Простая стратегия: сброс momentum оптимизатора
-                # В production версии здесь была бы более сложная логика
+                # Simple strategy: reset momentum optimizer
+                # IN production version here was would more complex logic
                 pass
     
     def get_online_stats(self) -> Dict[str, Any]:
-        """Получение статистики online learning"""
+        """Retrieval statistics online learning"""
         return {
             'online_mode': self.online_mode.value,
             'num_batches_processed': len(self.online_stats['loss']),

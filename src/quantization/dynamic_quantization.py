@@ -1,6 +1,6 @@
 """
-Модуль динамической квантизации для криптотрейдинговых моделей.
-Оптимизирован для минимальной латентности в real-time inference.
+Module dynamic quantization for crypto trading models.
+Optimized for minimum latency in real-time inference.
 
 High-frequency trading optimization patterns
 """
@@ -19,18 +19,18 @@ from .quantizer import BaseQuantizer, PrecisionLevel, CryptoModelQuantizer
 logger = logging.getLogger(__name__)
 
 class DynamicQuantizationMode(Enum):
-    """Режимы динамической квантизации"""
-    AGGRESSIVE = "aggressive"    # Максимальное сжатие
-    BALANCED = "balanced"       # Баланс сжатие/точность
-    CONSERVATIVE = "conservative"  # Минимальная потеря точности
+    """Modes dynamic quantization"""
+    AGGRESSIVE = "aggressive"    # Maximum compression
+    BALANCED = "balanced"       # Balance compression/accuracy
+    CONSERVATIVE = "conservative"  # Minimum loss accuracy
 
 class LatencyOptimizer:
-    """Оптимизатор латентности для HFT сценариев"""
+    """Optimizer latency for HFT scenarios"""
     
     def __init__(self, target_latency_us: float = 100.0):
         """
         Args:
-            target_latency_us: Целевая латентность в микросекундах
+            target_latency_us: Target latency in microseconds
         """
         self.target_latency_us = target_latency_us
         self.benchmark_results = {}
@@ -41,26 +41,26 @@ class LatencyOptimizer:
                        input_shape: Tuple[int, ...], 
                        num_iterations: int = 1000) -> Dict[str, float]:
         """
-        Бенчмарк латентности модели
+        Benchmark latency model
         
         Args:
-            model: Модель для тестирования
-            input_shape: Размер входных данных
-            num_iterations: Количество итераций для усреднения
+            model: Model for testing
+            input_shape: Size input data
+            num_iterations: Number iterations for averaging
         
         Returns:
-            Статистика латентности
+            Statistics latency
         """
         model.eval()
         device = next(model.parameters()).device
         
-        # Прогрев модели
+        # Warmup model
         dummy_input = torch.randn(1, *input_shape).to(device)
         for _ in range(10):
             with torch.no_grad():
                 _ = model(dummy_input)
         
-        # Измерение латентности
+        # Measurement latency
         latencies = []
         
         with torch.no_grad():
@@ -72,7 +72,7 @@ class LatencyOptimizer:
                 latency_us = (end_time - start_time) * 1_000_000
                 latencies.append(latency_us)
         
-        # Статистика
+        # Statistics
         stats = {
             "mean_latency_us": np.mean(latencies),
             "median_latency_us": np.median(latencies),
@@ -85,14 +85,14 @@ class LatencyOptimizer:
         
         self.benchmark_results = stats
         
-        self.logger.info(f"Бенчмарк латентности: "
-                        f"средняя={stats['mean_latency_us']:.1f}μs, "
+        self.logger.info(f"Benchmark latency: "
+                        f"average={stats['mean_latency_us']:.1f}μs, "
                         f"p95={stats['p95_latency_us']:.1f}μs")
         
         return stats
     
     def meets_latency_target(self) -> bool:
-        """Проверка соответствия целевой латентности"""
+        """Validation compliance target latency"""
         if not self.benchmark_results:
             return False
         
@@ -101,8 +101,8 @@ class LatencyOptimizer:
 
 class DynamicQuantizer(CryptoModelQuantizer):
     """
-    Специализированный динамический квантизатор для crypto trading models
-    с оптимизацией для microsecond latency
+    Specialized dynamic quantizer for crypto trading models
+    with optimization for microsecond latency
     """
     
     def __init__(self, 
@@ -111,9 +111,9 @@ class DynamicQuantizer(CryptoModelQuantizer):
                  target_latency_us: float = 100.0):
         """
         Args:
-            precision: Уровень точности квантизации
-            mode: Режим квантизации (aggressive/balanced/conservative)
-            target_latency_us: Целевая латентность в микросекундах
+            precision: Level accuracy quantization
+            mode: Mode quantization (aggressive/balanced/conservative)
+            target_latency_us: Target latency in microseconds
         """
         super().__init__(precision)
         self.mode = mode
@@ -121,22 +121,22 @@ class DynamicQuantizer(CryptoModelQuantizer):
         self.quantization_config = self._get_dynamic_config()
         
     def _get_dynamic_config(self) -> Dict[str, Any]:
-        """Получение конфигурации динамической квантизации"""
+        """Retrieval configuration dynamic quantization"""
         base_config = {
             "dtype": torch.qint8 if self.precision == PrecisionLevel.INT8 else torch.qint8,
             "reduce_range": False
         }
         
         if self.mode == DynamicQuantizationMode.AGGRESSIVE:
-            # Квантизируем максимум слоев для максимального сжатия
+            # Quantize maximum layers for maximum compression
             base_config["qconfig_spec"] = {
                 nn.Linear, nn.Conv1d, nn.Conv2d, nn.LSTM, nn.GRU
             }
         elif self.mode == DynamicQuantizationMode.BALANCED:
-            # Квантизируем основные слои
+            # Quantize main layers
             base_config["qconfig_spec"] = {nn.Linear, nn.Conv1d, nn.Conv2d}
         else:  # CONSERVATIVE
-            # Квантизируем только Linear слои
+            # Quantize only Linear layers
             base_config["qconfig_spec"] = {nn.Linear}
             
         return base_config
@@ -146,23 +146,23 @@ class DynamicQuantizer(CryptoModelQuantizer):
                         input_shape: Tuple[int, ...],
                         calibration_data: Optional[torch.Tensor] = None) -> nn.Module:
         """
-        Специальная квантизация для High-Frequency Trading
-        с гарантией латентности
+        Special quantization for High-Frequency Trading
+        with guarantee latency
         
         Args:
-            model: Исходная модель
-            input_shape: Размер входных данных
-            calibration_data: Данные для валидации точности
+            model: Original model
+            input_shape: Size input data
+            calibration_data: Data for validation accuracy
             
         Returns:
-            Квантизованная модель с оптимальной латентностью
+            Quantized model with optimal latency
         """
-        self.logger.info(f"Начинаем HFT квантизацию в режиме {self.mode.value}")
+        self.logger.info(f"Begin HFT quantization in mode {self.mode.value}")
         
-        # Исходный бенчмарк
+        # Original benchmark
         original_stats = self.latency_optimizer.benchmark_model(model, input_shape)
         
-        # Пробуем разные конфигурации квантизации
+        # Try different configuration quantization
         best_model = None
         best_config = None
         best_latency = float('inf')
@@ -171,48 +171,48 @@ class DynamicQuantizer(CryptoModelQuantizer):
         
         for config_name, config in configs_to_try.items():
             try:
-                # Квантизация с текущей конфигурацией
+                # Quantization with current configuration
                 quantized_model = self._apply_dynamic_quantization(model, config)
                 
-                # Бенчмарк квантизованной модели
+                # Benchmark quantized model
                 quantized_stats = self.latency_optimizer.benchmark_model(
                     quantized_model, input_shape
                 )
                 
                 current_latency = quantized_stats["p95_latency_us"]
                 
-                # Проверка улучшения латентности и соответствия цели
+                # Validation improvements latency and compliance goals
                 if (current_latency < best_latency and 
                     current_latency <= self.latency_optimizer.target_latency_us):
                     
-                    # Дополнительная проверка точности если есть данные
+                    # Additional validation accuracy if exists data
                     if calibration_data is not None:
                         accuracy_ok = self._validate_accuracy(
                             model, quantized_model, calibration_data
                         )
                         if not accuracy_ok:
-                            self.logger.warning(f"Конфигурация {config_name} не прошла проверку точности")
+                            self.logger.warning(f"Configuration {config_name} not passed check accuracy")
                             continue
                     
                     best_model = quantized_model
                     best_config = config_name
                     best_latency = current_latency
                     
-                self.logger.info(f"Конфигурация {config_name}: "
-                               f"латентность {current_latency:.1f}μs")
+                self.logger.info(f"Configuration {config_name}: "
+                               f"latency {current_latency:.1f}μs")
                 
             except Exception as e:
-                self.logger.warning(f"Ошибка с конфигурацией {config_name}: {e}")
+                self.logger.warning(f"Error with configuration {config_name}: {e}")
                 continue
         
         if best_model is None:
-            self.logger.warning("Не удалось найти подходящую конфигурацию квантизации")
+            self.logger.warning("Not succeeded find suitable configuration quantization")
             return model
         
-        # Дополнительные оптимизации для лучшей модели
+        # Additional optimization for best model
         optimized_model = self._apply_hft_optimizations(best_model)
         
-        # Финальный бенчмарк
+        # Final benchmark
         final_stats = self.latency_optimizer.benchmark_model(
             optimized_model, input_shape
         )
@@ -220,10 +220,10 @@ class DynamicQuantizer(CryptoModelQuantizer):
         improvement = (original_stats["p95_latency_us"] - 
                       final_stats["p95_latency_us"]) / original_stats["p95_latency_us"] * 100
         
-        self.logger.info(f"HFT квантизация завершена. Лучшая конфигурация: {best_config}")
-        self.logger.info(f"Улучшение латентности: {improvement:.1f}%")
+        self.logger.info(f"HFT quantization completed. Best configuration: {best_config}")
+        self.logger.info(f"Improvement latency: {improvement:.1f}%")
         
-        # Сохраняем статистику
+        # Save statistics
         self.compression_stats.update({
             "hft_optimization": {
                 "original_p95_latency_us": original_stats["p95_latency_us"],
@@ -237,33 +237,33 @@ class DynamicQuantizer(CryptoModelQuantizer):
         return optimized_model
     
     def _generate_quantization_configs(self) -> Dict[str, Dict[str, Any]]:
-        """Генерация различных конфигураций для тестирования"""
+        """Generation various configurations for testing"""
         configs = {}
         
         base_layers = [nn.Linear]
         extended_layers = [nn.Linear, nn.Conv1d, nn.Conv2d]
         aggressive_layers = [nn.Linear, nn.Conv1d, nn.Conv2d, nn.LSTM, nn.GRU]
         
-        # Базовая конфигурация
+        # Base configuration
         configs["basic"] = {
             "qconfig_spec": set(base_layers),
             "dtype": torch.qint8
         }
         
-        # Расширенная конфигурация
+        # Extended configuration
         configs["extended"] = {
             "qconfig_spec": set(extended_layers),
             "dtype": torch.qint8
         }
         
-        # Агрессивная конфигурация
+        # Aggressive configuration
         if self.mode == DynamicQuantizationMode.AGGRESSIVE:
             configs["aggressive"] = {
                 "qconfig_spec": set(aggressive_layers),
                 "dtype": torch.qint8
             }
         
-        # Конфигурации с разными настройками reduce_range
+        # Configuration with different settings reduce_range
         for name, base_config in list(configs.items()):
             reduced_config = base_config.copy()
             reduced_config["reduce_range"] = True
@@ -274,7 +274,7 @@ class DynamicQuantizer(CryptoModelQuantizer):
     def _apply_dynamic_quantization(self, 
                                   model: nn.Module, 
                                   config: Dict[str, Any]) -> nn.Module:
-        """Применение динамической квантизации с конфигурацией"""
+        """Application dynamic quantization with configuration"""
         quantized_model = quantize_dynamic(
             model=model,
             qconfig_spec=config["qconfig_spec"],
@@ -291,16 +291,16 @@ class DynamicQuantizer(CryptoModelQuantizer):
                           validation_data: torch.Tensor,
                           threshold: float = 0.95) -> bool:
         """
-        Валидация точности квантизованной модели
+        Validation accuracy quantized model
         
         Args:
-            original_model: Исходная модель
-            quantized_model: Квантизованная модель
-            validation_data: Данные для валидации
-            threshold: Минимальный порог соответствия
+            original_model: Original model
+            quantized_model: Quantized model
+            validation_data: Data for validation
+            threshold: Minimum threshold compliance
             
         Returns:
-            True если точность приемлемая
+            True if accuracy acceptable
         """
         try:
             original_model.eval()
@@ -310,78 +310,78 @@ class DynamicQuantizer(CryptoModelQuantizer):
                 original_output = original_model(validation_data)
                 quantized_output = quantized_model(validation_data)
                 
-                # Вычисляем корреляцию между выходами
+                # Compute correlation between outputs
                 original_flat = original_output.flatten().cpu().numpy()
                 quantized_flat = quantized_output.flatten().cpu().numpy()
                 
                 correlation = np.corrcoef(original_flat, quantized_flat)[0, 1]
                 
-                # Проверяем средний относительный error
+                # Check average relative error
                 relative_error = np.mean(np.abs(original_flat - quantized_flat) / 
                                        (np.abs(original_flat) + 1e-8))
                 
                 accuracy_ok = (correlation >= threshold and 
                              relative_error <= (1.0 - threshold))
                 
-                self.logger.debug(f"Проверка точности: корреляция={correlation:.3f}, "
-                                f"относительная ошибка={relative_error:.3f}")
+                self.logger.debug(f"Validation accuracy: correlation={correlation:.3f}, "
+                                f"relative error={relative_error:.3f}")
                 
                 return accuracy_ok
                 
         except Exception as e:
-            self.logger.error(f"Ошибка валидации точности: {e}")
+            self.logger.error(f"Error validation accuracy: {e}")
             return False
     
     def _apply_hft_optimizations(self, model: nn.Module) -> nn.Module:
-        """Дополнительные оптимизации для HFT"""
+        """Additional optimization for HFT"""
         optimized_model = model
         
         try:
-            # 1. Фьюзинг операций
+            # 1. Fusing operations
             optimized_model = self._fuse_operations(optimized_model)
             
-            # 2. JIT компиляция если возможно
+            # 2. JIT compilation if possibly
             if hasattr(torch, 'jit'):
                 try:
-                    # Создаем пример входа для трассировки
+                    # Create example input for tracing
                     input_shape = self._get_input_shape(model)
                     dummy_input = torch.randn(1, *input_shape)
                     
                     traced_model = torch.jit.trace(optimized_model, dummy_input)
                     optimized_model = torch.jit.optimize_for_inference(traced_model)
                     
-                    self.logger.info("Применена JIT оптимизация")
+                    self.logger.info("Applied JIT optimization")
                     
                 except Exception as e:
-                    self.logger.warning(f"JIT оптимизация не удалась: {e}")
+                    self.logger.warning(f"JIT optimization not succeeded: {e}")
             
-            # 3. Memory layout оптимизация
+            # 3. Memory layout optimization
             optimized_model = self._optimize_memory_layout(optimized_model)
             
         except Exception as e:
-            self.logger.warning(f"Некоторые HFT оптимизации не удались: {e}")
+            self.logger.warning(f"Some HFT optimization not succeeded: {e}")
         
         return optimized_model
     
     def _optimize_memory_layout(self, model: nn.Module) -> nn.Module:
-        """Оптимизация memory layout для лучшего cache locality"""
+        """Optimization memory layout for best cache locality"""
         try:
-            # Обеспечиваем contiguous memory layout для параметров
+            # Ensure contiguous memory layout for parameters
             for param in model.parameters():
                 if not param.is_contiguous():
                     param.data = param.data.contiguous()
             
-            self.logger.debug("Применена оптимизация memory layout")
+            self.logger.debug("Applied optimization memory layout")
             
         except Exception as e:
-            self.logger.warning(f"Ошибка оптимизации memory layout: {e}")
+            self.logger.warning(f"Error optimization memory layout: {e}")
         
         return model
     
     def create_inference_engine(self, 
                                model: nn.Module, 
                                input_shape: Tuple[int, ...]) -> 'HFTInferenceEngine':
-        """Создание специализированного inference engine для HFT"""
+        """Creation specialized inference engine for HFT"""
         return HFTInferenceEngine(
             model=model,
             input_shape=input_shape,
@@ -391,7 +391,7 @@ class DynamicQuantizer(CryptoModelQuantizer):
 class HFTInferenceEngine:
     """
     High-Frequency Trading Inference Engine
-    Оптимизирован для microsecond latency inference
+    Optimized for microsecond latency inference
     """
     
     def __init__(self, 
@@ -400,22 +400,22 @@ class HFTInferenceEngine:
                  target_latency_us: float = 100.0):
         """
         Args:
-            model: Квантизованная модель
-            input_shape: Размер входных данных
-            target_latency_us: Целевая латентность
+            model: Quantized model
+            input_shape: Size input data
+            target_latency_us: Target latency
         """
         self.model = model
         self.input_shape = input_shape
         self.target_latency_us = target_latency_us
         
-        # Прогрев и оптимизация
+        # Warmup and optimization
         self._warmup_model()
         self._setup_input_cache()
         
         self.logger = logging.getLogger(f"{__name__}.HFTInferenceEngine")
     
     def _warmup_model(self, warmup_iterations: int = 100) -> None:
-        """Прогрев модели для стабильной латентности"""
+        """Warmup model for stable latency"""
         self.model.eval()
         dummy_input = torch.randn(1, *self.input_shape)
         
@@ -423,24 +423,24 @@ class HFTInferenceEngine:
             for _ in range(warmup_iterations):
                 _ = self.model(dummy_input)
         
-        self.logger.info(f"Модель прогрета {warmup_iterations} итераций")
+        self.logger.info(f"Model warmed up {warmup_iterations} iterations")
     
     def _setup_input_cache(self) -> None:
-        """Настройка кэша входных тензоров для переиспользования"""
-        # Pre-allocate input tensor для избежания memory allocation overhead
+        """Configuration cache input tensors for reuse"""
+        # Pre-allocate input tensor for avoidance memory allocation overhead
         self._input_cache = torch.empty(1, *self.input_shape)
         
     def predict(self, input_data: Union[np.ndarray, torch.Tensor]) -> torch.Tensor:
         """
-        Быстрый prediction с минимальной латентностью
+        Fast prediction with minimum latency
         
         Args:
-            input_data: Входные данные
+            input_data: Input data
             
         Returns:
-            Результат предсказания
+            Result predictions
         """
-        # Используем pre-allocated tensor
+        # Use pre-allocated tensor
         if isinstance(input_data, np.ndarray):
             self._input_cache[0] = torch.from_numpy(input_data)
         else:
@@ -453,14 +453,14 @@ class HFTInferenceEngine:
                      batch_data: Union[np.ndarray, torch.Tensor], 
                      max_batch_size: int = 32) -> torch.Tensor:
         """
-        Batch prediction с контролем латентности
+        Batch prediction with control latency
         
         Args:
-            batch_data: Batch входных данных
-            max_batch_size: Максимальный размер batch для контроля латентности
+            batch_data: Batch input data
+            max_batch_size: Maximum size batch for control latency
             
         Returns:
-            Batch результатов
+            Batch results
         """
         if isinstance(batch_data, np.ndarray):
             batch_data = torch.from_numpy(batch_data)
@@ -471,7 +471,7 @@ class HFTInferenceEngine:
             with torch.no_grad():
                 return self.model(batch_data)
         else:
-            # Разбиваем на smaller batches для контроля латентности
+            # Split on smaller batches for control latency
             results = []
             
             for i in range(0, batch_size, max_batch_size):
@@ -483,7 +483,7 @@ class HFTInferenceEngine:
             return torch.cat(results, dim=0)
     
     def get_latency_stats(self, num_iterations: int = 1000) -> Dict[str, float]:
-        """Получение статистики латентности engine"""
+        """Retrieval statistics latency engine"""
         latency_optimizer = LatencyOptimizer(self.target_latency_us)
         return latency_optimizer.benchmark_model(
             self.model, self.input_shape, num_iterations
